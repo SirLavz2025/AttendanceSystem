@@ -1,0 +1,403 @@
+ <!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>SirLavz QR Attendance System - NAAP</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<script src="https://unpkg.com/html5-qrcode"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
+<style>
+    body{font-family:Arial;background:#f4f6f9;margin:0;padding:20px}
+    h1,h2,h3{text-align:center;margin-bottom:5px}
+    #liveClock{text-align:center;font-size:1.2em;font-weight:bold;color:#007bff;margin-bottom:20px}
+    button,input,select{padding:6px;margin:4px;cursor:pointer}
+    table{width:100%;border-collapse:collapse;background:#fff;margin-top:10px}
+    th,td{border:1px solid #ccc;padding:8px;text-align:center}
+    th{background:#222;color:#fff}
+    .tab{display:none}
+    .active-tab{display:block}
+    .footer{text-align:center;margin-top:20px;font-size:12px;color:#555}
+    .present{color:green;font-weight:bold}
+    .absent{color:red;font-weight:bold}
+    .manage-box{background:#fff;padding:10px;border:1px solid #ccc;margin-bottom:10px}
+    #scanner {
+        width: 300px;
+        margin: auto;
+        background: #000;
+        border-radius: 8px;
+        overflow: hidden;
+        border: 8px solid transparent;
+        transition: border-color 0.3s ease;
+    }
+    .btn-del{background:#ff4d4d;color:white;border:none;border-radius:3px;padding:4px 8px}
+    .btn-edit{background:#007bff;color:white;border:none;border-radius:3px;padding:4px 8px}
+    .btn-reset{background:#ffc107;color:black;border:1px solid #d39e00;font-weight:bold}
+    .scanner-controls{text-align:center;margin-bottom:10px;background:#eee;padding:10px;border-radius:5px}
+    .btn-danger-large{background:#dc3545;color:white;padding:15px;width:100%;font-weight:bold;border:none;margin-top:20px}
+</style>
+</head>
+
+<body>
+
+<h1>SirLavz QR Attendance System</h1>
+<div id="liveClock">Loading Time...</div>
+
+<div style="text-align:center">
+    <button onclick="showTab('scanTab')">Scanner</button>
+    <button onclick="showTab('studentTab')">Students</button>
+    <button onclick="showTab('dropdownTab')">Dropdowns</button>
+    <button onclick="showTab('attendanceTab')">Attendance</button>
+</div>
+
+<div id="scanTab" class="tab active-tab">
+    <h2>QR Scanner</h2>
+    <div class="scanner-controls">
+        <label>Select Camera:</label>
+        <select id="cameraSelection"></select>
+        <button onclick="restartScanner()">Switch Camera</button>
+    </div>
+    <div id="scanner"></div>
+    <p id="scanStatus" style="text-align:center;font-weight:bold;font-size:1.2em;min-height:1.5em;"></p>
+</div>
+
+<div id="studentTab" class="tab">
+    <h2>Student Management</h2>
+    <form id="studentForm">
+        <input id="sid" placeholder="Student ID" required>
+        <input id="sname" placeholder="Full Name" required>
+        <select id="course"></select>
+        <select id="year"></select>
+        <select id="section"></select>
+        <button type="submit" id="submitBtn">Add Student</button>
+        <button type="button" onclick="resetStudentForm()">Clear</button>
+    </form>
+    <table>
+        <thead>
+            <tr>
+                <th>#</th><th>ID</th><th>Name</th><th>Course</th>
+                <th>Year</th><th>Section</th><th>QR</th><th>Action</th>
+            </tr>
+        </thead>
+        <tbody id="studentTable"></tbody>
+    </table>
+</div>
+
+<div id="dropdownTab" class="tab">
+    <h2>Dropdown Management</h2>
+    <div class="manage-box">
+        <h3>Courses</h3>
+        <input id="newCourse"><button onclick="addOpt('courses','newCourse')">Add</button>
+        <ul id="coursesList"></ul>
+    </div>
+    <div class="manage-box">
+        <h3>Years</h3>
+        <input id="newYear"><button onclick="addOpt('years','newYear')">Add</button>
+        <ul id="yearsList"></ul>
+    </div>
+    <div class="manage-box">
+        <h3>Sections</h3>
+        <input id="newSection"><button onclick="addOpt('sections','newSection')">Add</button>
+        <ul id="sectionsList"></ul>
+    </div>
+    <div class="manage-box" style="border: 2px solid red; margin-top:20px;">
+        <h3 style="color:red">Danger Zone</h3>
+        <button class="btn-danger-large" onclick="clearAllLocalStorage()">DELETE ALL SYSTEM DATA</button>
+    </div>
+</div>
+
+<div id="attendanceTab" class="tab">
+    <h2>Attendance Records</h2>
+    <div class="manage-box">
+        <label>Instructor: <input id="instructor" oninput="saveInstructor()"></label>
+        <label>Date: <input type="date" id="attDate" onchange="renderAttendance()"></label>
+        <label>Section: <select id="filterSection" onchange="renderAttendance()"></select></label>
+        <br><br>
+        <button onclick="printFilteredPDF()">Print Filtered View</button>
+        <button onclick="printPerSectionPDF()">Print All Sections</button>
+        <button class="btn-reset" onclick="resetDailyAttendance()">Clear Date Records</button>
+    </div>
+    <table id="printArea">
+        <thead>
+            <tr>
+                <th>#</th><th>ID</th><th>Name</th><th>Course</th>
+                <th>Year</th><th>Section</th><th>Status</th>
+            </tr>
+        </thead>
+        <tbody id="attendanceTable"></tbody>
+    </table>
+    <h3>Summary</h3>
+    <table>
+        <thead>
+            <tr><th>Section</th><th>Present</th><th>Absent</th><th>Total</th></tr>
+        </thead>
+        <tbody id="summaryTable"></tbody>
+    </table>
+</div>
+
+<div class="footer">@SirLavz2026 | RONALD T. LAVA, MSIT | INSTITUTE OF COMPUTER STUDIES | NAAP</div>
+
+<script>
+/* -------- DATA INITIALIZATION -------- */
+const sk="students", ak="attendance", dk="dropdowns", ik="instructor";
+let students = JSON.parse(localStorage.getItem(sk)) || [];
+let attendance = JSON.parse(localStorage.getItem(ak)) || [];
+let dropdowns = JSON.parse(localStorage.getItem(dk)) || {courses:[], years:[], sections:[]};
+let html5QrCode;
+let isProcessingScan = false;
+
+/* -------- DATE & CLOCK HELPERS -------- */
+function getTodayDate() {
+    const now = new Date();
+    // Adjusted for local timezone to prevent UTC "yesterday" bug
+    const offset = now.getTimezoneOffset() * 60000; 
+    return (new Date(now - offset)).toISOString().split('T')[0];
+}
+
+function updateClock() {
+    const now = new Date();
+    const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit' };
+    document.getElementById('liveClock').textContent = now.toLocaleDateString('en-PH', options);
+}
+setInterval(updateClock, 1000);
+
+/* -------- TAB NAVIGATION -------- */
+function showTab(id){
+    document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active-tab'));
+    document.getElementById(id).classList.add('active-tab');
+}
+
+/* -------- DROPDOWN LOGIC -------- */
+function addOpt(type, id) {
+    let v = document.getElementById(id).value.trim();
+    if (v && !dropdowns[type].includes(v)) {
+        dropdowns[type].push(v);
+        saveDrop();
+        renderDrops();
+    }
+    document.getElementById(id).value = "";
+}
+
+function delOpt(type, v) {
+    dropdowns[type] = dropdowns[type].filter(x => x !== v);
+    saveDrop();
+    renderDrops();
+}
+
+function renderDrops() {
+    const mapList = (arr, type) => arr.map(x => `<li>${x} <button onclick="delOpt('${type}','${x}')">x</button></li>`).join("");
+    coursesList.innerHTML = mapList(dropdowns.courses, 'courses');
+    yearsList.innerHTML = mapList(dropdowns.years, 'years');
+    sectionsList.innerHTML = mapList(dropdowns.sections, 'sections');
+
+    const mapOpt = arr => arr.map(x => `<option value="${x}">${x}</option>`).join("");
+    course.innerHTML = mapOpt(dropdowns.courses);
+    year.innerHTML = mapOpt(dropdowns.years);
+    section.innerHTML = mapOpt(dropdowns.sections);
+    filterSection.innerHTML = `<option value="ALL">ALL</option>` + mapOpt(dropdowns.sections);
+}
+
+/* -------- STUDENT LOGIC -------- */
+studentForm.onsubmit = e => {
+    e.preventDefault();
+    let i = students.findIndex(s => s.id === sid.value);
+    let obj = {id: sid.value, name: sname.value, course: course.value, year: year.value, section: section.value};
+    if (i >= 0) students[i] = obj; 
+    else students.push(obj);
+    save();
+    renderStudents();
+    resetStudentForm();
+};
+
+function resetStudentForm() {
+    studentForm.reset();
+    sid.readOnly = false;
+    submitBtn.textContent = "Add Student";
+}
+function editStudent(id) {
+    let s = students.find(x => x.id === id);
+    if (s) {
+        sid.value = s.id;
+        sid.readOnly = true;
+        sname.value = s.name;
+        course.value = s.course;
+        year.value = s.year;
+        section.value = s.section;
+        submitBtn.textContent = "Update Student";
+        showTab('studentTab');
+    }
+}
+
+function delStudent(id) {
+    if (confirm("Delete this student?")) {
+        students = students.filter(s => s.id !== id);
+        save();
+        renderStudents();
+        renderAttendance();
+    }
+}
+function renderStudents() {
+    studentTable.innerHTML = "";
+    students.forEach((s, i) => {
+        studentTable.innerHTML += `<tr><td>${i+1}</td><td>${s.id}</td><td>${s.name}</td><td>${s.course}</td><td>${s.year}</td><td>${s.section}</td><td><div id="qr${s.id}"></div></td><td><button class="btn-edit" onclick="editStudent('${s.id}')">Edit</button><button class="btn-del" onclick="delStudent('${s.id}')">Delete</button></td></tr>`;
+    });
+    students.forEach(s => {
+        let d = document.getElementById("qr"+s.id);
+        if (d) { d.innerHTML = ""; new QRCode(d, {text: s.id, width: 60, height: 60}); }
+    });
+}
+
+function save(){ localStorage.setItem(sk, JSON.stringify(students)); }
+function saveDrop(){ localStorage.setItem(dk, JSON.stringify(dropdowns)); }
+function saveInstructor(){ localStorage.setItem(ik, instructor.value); }
+function loadInstructor(){ instructor.value = localStorage.getItem(ik) || ""; }
+
+function clearAllLocalStorage() {
+    if (confirm("CRITICAL: Delete ALL data?")) { localStorage.clear(); location.reload(); }
+}
+
+/* -------- ATTENDANCE LOGIC -------- */
+function speakMessage(text) {
+    window.speechSynthesis.cancel(); 
+    const msg = new SpeechSynthesisUtterance(text);
+    window.speechSynthesis.speak(msg);
+}
+
+function markAttendance(id) {
+    if (isProcessingScan) return;
+    const scannerBox = document.getElementById("scanner");
+    const status = document.getElementById("scanStatus");
+    const student = students.find(s => s.id === id);
+    isProcessingScan = true;
+
+    if (!student) {
+        scannerBox.style.borderColor = "#ff4d4d";
+        status.style.color = "red";
+        status.textContent = "❌ ID: " + id + " Not Found!";
+        speakMessage("You are not in the list.");
+        setTimeout(() => { scannerBox.style.borderColor = "transparent"; status.textContent=""; isProcessingScan = false; }, 3000);
+        return;
+    }
+
+    let d = getTodayDate();
+    if (attendance.some(a => a.id === id && a.date === d)) {
+        scannerBox.style.borderColor = "#ffc107";
+        status.style.color = "orange";
+        status.textContent = "⚠ Already Timed In: " + student.name;
+        speakMessage(student.name + ", you already timed-in.");
+        setTimeout(() => { scannerBox.style.borderColor = "transparent"; status.textContent=""; isProcessingScan = false; }, 3000);
+        return;
+    }
+
+    attendance.push({id, date: d});
+    localStorage.setItem(ak, JSON.stringify(attendance));
+    scannerBox.style.borderColor = "#28a745";
+    status.style.color = "green";
+    status.textContent = "✔ Welcome to National Aviation Academy of the Philippines";
+    speakMessage("Welcome to National Aviation Academy of the Philippines" );
+    renderAttendance();
+    setTimeout(() => { scannerBox.style.borderColor = "transparent"; status.textContent=""; isProcessingScan = false; }, 3000);
+}
+
+function renderAttendance() {
+    let d = document.getElementById('attDate').value || getTodayDate();
+    let sec = filterSection.value;
+    attendanceTable.innerHTML = "";
+    let count = 1;
+    students.filter(s => sec === "ALL" || s.section === sec).forEach(s => {
+        let present = attendance.some(a => a.id === s.id && a.date === d);
+        attendanceTable.innerHTML += `<tr><td>${count++}</td><td>${s.id}</td><td>${s.name}</td><td>${s.course}</td><td>${s.year}</td><td>${s.section}</td><td class="${present?'present':'absent'}">${present?'Present':'Absent'}</td></tr>`;
+    });
+    renderSummary(d);
+}
+
+function renderSummary(d) {
+    summaryTable.innerHTML = "";
+    dropdowns.sections.forEach(sec => {
+        let ss = students.filter(s => s.section === sec);
+        let pres = ss.filter(s => attendance.some(a => a.id === s.id && a.date === d)).length;
+        summaryTable.innerHTML += `<tr><td>${sec}</td><td>${pres}</td><td>${ss.length-pres}</td><td>${ss.length}</td></tr>`;
+    });
+}
+
+function resetDailyAttendance() {
+    let d = attDate.value || getTodayDate();
+    if (confirm(`Clear records for ${d}?`)) {
+        attendance = attendance.filter(a => a.date !== d);
+        localStorage.setItem(ak, JSON.stringify(attendance));
+        renderAttendance();
+    }
+}
+
+/* -------- CAMERA / SCANNER -------- */
+async function initScanner() {
+    try {
+        const devices = await Html5Qrcode.getCameras();
+        if (devices && devices.length) {
+            cameraSelection.innerHTML = devices.map(device => `<option value="${device.id}">${device.label}</option>`).join("");
+            startScanner(devices[0].id);
+        }
+    } catch (err) { console.error(err); }
+}
+
+function startScanner(cameraId) {
+    if (html5QrCode) {
+        html5QrCode.stop().then(() => attachScanner(cameraId)).catch(() => attachScanner(cameraId));
+    } else { attachScanner(cameraId); }
+}
+
+function attachScanner(cameraId) {
+    html5QrCode = new Html5Qrcode("scanner");
+    html5QrCode.start(cameraId, {fps: 10, qrbox: 250}, markAttendance, () => {});
+}
+
+function restartScanner() { startScanner(cameraSelection.value); }
+
+/* -------- PRINTING -------- */
+function printFilteredPDF(){
+    let d = attDate.value || getTodayDate();
+    let s = filterSection.value;
+    let i = instructor.value || "—";
+    printWindow(d, s, i, document.getElementById("printArea").outerHTML);
+}
+
+function printPerSectionPDF(){
+    let d = attDate.value || getTodayDate();
+    let i = instructor.value || "—";
+    dropdowns.sections.forEach(sec => {
+        let rows = "";
+        students.filter(s => s.section === sec).forEach((s, idx) => {
+            let p = attendance.some(a => a.id === s.id && a.date === d);
+            rows += `<tr><td>${idx+1}</td><td>${s.id}</td><td>${s.name}</td><td>${s.course}</td><td>${s.year}</td><td>${s.section}</td><td>${p?'Present':'Absent'}</td></tr>`;
+        });
+        if (rows !== "") {
+            let table = `<table><thead><tr><th>#</th><th>ID</th><th>Name</th><th>Course</th><th>Year</th><th>Section</th><th>Status</th></tr></thead><tbody>${rows}</tbody></table>`;
+            printWindow(d, sec, i, table);
+        }
+    });
+}
+
+function printWindow(date, section, instructorName, tableBody){
+    let w = window.open("");
+    w.document.write(`<html><head><style>body{font-family:Arial;padding:30px}.header{text-align:center}table{width:100%;border-collapse:collapse;margin-top:20px}th,td{border:1px solid #000;padding:8px;text-align:center}th{background:#222;color:#fff}</style></head><body><div class="header"><h2>NATIONAL AVIATION ACADEMY OF THE PHILIPPINES</h2><h3>Attendance Report</h3><p>Date: ${date} | Section: ${section} | Instructor: ${instructorName}</p></div>${tableBody}</body></html>`);
+    w.document.close();
+    w.print();
+}
+
+/* -------- INITIAL LOAD -------- */
+window.onload = () => {
+    // 1. Update Clock and Date Input immediately
+    updateClock();
+    document.getElementById('attDate').value = getTodayDate();
+    
+    // 2. Load System Data
+    initScanner();
+    renderDrops();
+    renderStudents();
+    loadInstructor();
+    renderAttendance();
+};
+</script>
+</body>
+</html>
