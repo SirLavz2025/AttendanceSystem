@@ -1,142 +1,259 @@
- <!DOCTYPE html>
+  <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>SirLavz QR Attendance System - NAAP</title>
+<title>SirLavz QR Attendance System</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<!-- Tailwind CSS & FontAwesome Icons for modern UI -->
+<script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
 <script src="https://unpkg.com/html5-qrcode"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 
 <style>
-    body{font-family:Arial;background:#f4f6f9;margin:0;padding:20px}
-    h1,h2,h3{text-align:center;margin-bottom:5px}
-    #liveClock{text-align:center;font-size:1.2em;font-weight:bold;color:#007bff;margin-bottom:20px}
-    button,input,select{padding:6px;margin:4px;cursor:pointer}
-    table{width:100%;border-collapse:collapse;background:#fff;margin-top:10px}
-    th,td{border:1px solid #ccc;padding:8px;text-align:center}
-    th{background:#222;color:#fff}
-    .tab{display:none}
-    .active-tab{display:block}
-    .footer{text-align:center;margin-top:20px;font-size:12px;color:#555}
-    .present{color:green;font-weight:bold}
-    .absent{color:red;font-weight:bold}
-    .manage-box{background:#fff;padding:10px;border:1px solid #ccc;margin-bottom:10px}
-    #scanner {
-        width: 300px;
-        margin: auto;
-        background: #000;
-        border-radius: 8px;
-        overflow: hidden;
-        border: 8px solid transparent;
-        transition: border-color 0.3s ease;
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap');
+    body {
+        font-family: 'Plus Jakarta Sans', sans-serif;
     }
-    .btn-del{background:#ff4d4d;color:white;border:none;border-radius:3px;padding:4px 8px}
-    .btn-edit{background:#007bff;color:white;border:none;border-radius:3px;padding:4px 8px}
-    .btn-reset{background:#ffc107;color:black;border:1px solid #d39e00;font-weight:bold}
-    .scanner-controls{text-align:center;margin-bottom:10px;background:#eee;padding:10px;border-radius:5px}
-    .btn-danger-large{background:#dc3545;color:white;padding:15px;width:100%;font-weight:bold;border:none;margin-top:20px}
+    .tab { display: none; }
+    .active-tab { display: block; animation: fadeIn 0.4s ease; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 </style>
 </head>
 
-<body>
+<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col antialiased">
 
-<h1>SirLavz QR Attendance System</h1>
-<div id="liveClock">Loading Time...</div>
-
-<div style="text-align:center">
-    <button onclick="showTab('scanTab')">Scanner</button>
-    <button onclick="showTab('studentTab')">Students</button>
-    <button onclick="showTab('dropdownTab')">Dropdowns</button>
-    <button onclick="showTab('attendanceTab')">Attendance</button>
-</div>
-
-<div id="scanTab" class="tab active-tab">
-    <h2>QR Scanner</h2>
-    <div class="scanner-controls">
-        <label>Select Camera:</label>
-        <select id="cameraSelection"></select>
-        <button onclick="restartScanner()">Switch Camera</button>
+<!-- Header Section -->
+<header class="bg-gradient-to-r from-green-900 to-lightgreen-950 text-white shadow-xl px-3 py-4">
+    <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
+        <div class="flex items-center gap-4 text-center md:text-left">
+            <div class="p-2.5 bg-white/10 rounded-xl backdrop-blur-md w-fit inline-block">
+                <img 
+                    src="ccs.jpg" 
+                    alt="CCS Logo" 
+                    class="h-16 w-auto object-contain block" 
+                />
+            </div>
+            <div>
+                <h1 class="text-2xl font-bold tracking-tight">SirLavz QR Attendance System</h1>
+                <p class="text-xs text-slate-300 font-medium uppercase tracking-wider">LAGUNA UNIVERSITY - COLLEGE OF COMPUTING STUDIES</p>
+            </div>
+        </div>
+        <div class="bg-white/10 border border-white/10 backdrop-blur-md px-5 py-2.5 rounded-xl text-center shadow-inner">
+            <div id="liveClock" class="text-sm font-semibold text-sky-300 tracking-wide"><i class="fa-regular fa-clock mr-2"></i>Loading Time...</div>
+        </div>
     </div>
-    <div id="scanner"></div>
-    <p id="scanStatus" style="text-align:center;font-weight:bold;font-size:1.2em;min-height:1.5em;"></p>
-</div>
+</header>
+</header>
 
-<div id="studentTab" class="tab">
-    <h2>Student Management</h2>
-    <form id="studentForm">
-        <input id="sid" placeholder="Student ID" required>
-        <input id="sname" placeholder="Full Name" required>
-        <select id="course"></select>
-        <select id="year"></select>
-        <select id="section"></select>
-        <button type="submit" id="submitBtn">Add Student</button>
-        <button type="button" onclick="resetStudentForm()">Clear</button>
-    </form>
-    <table>
-        <thead>
-            <tr>
-                <th>#</th><th>ID</th><th>Name</th><th>Course</th>
-                <th>Year</th><th>Section</th><th>QR</th><th>Action</th>
-            </tr>
-        </thead>
-        <tbody id="studentTable"></tbody>
-    </table>
-</div>
+<!-- Navigation Menu -->
+<nav class="bg-white border-b border-slate-200 px-4 sticky top-0 z-50 shadow-xs">
+    <div class="max-w-7xl mx-auto flex flex-wrap justify-center md:justify-start gap-1 py-2">
+        <button onclick="showTab('scanTab', this)" class="nav-btn px-5 py-2.5 rounded-lg text-sm font-semibold text-blue-600 bg-blue-50 flex items-center gap-2 transition-all duration-200"><i class="fa-solid fa-qrcode"></i> Scanner</button>
+        <button onclick="showTab('studentTab', this)" class="nav-btn px-5 py-2.5 rounded-lg text-sm font-semibold text-slate-600 hover:bg-slate-100 flex items-center gap-2 transition-all duration-200"><i class="fa-solid fa-user-graduate"></i> Students</button>
+        <button onclick="showTab('dropdownTab', this)" class="nav-btn px-5 py-2.5 rounded-lg text-sm font-semibold text-slate-600 hover:bg-slate-100 flex items-center gap-2 transition-all duration-200"><i class="fa-solid fa-sliders"></i> Dropdowns</button>
+        <button onclick="showTab('attendanceTab', this)" class="nav-btn px-5 py-2.5 rounded-lg text-sm font-semibold text-slate-600 hover:bg-slate-100 flex items-center gap-2 transition-all duration-200"><i class="fa-solid fa-clipboard-user"></i> Attendance</button>
+    </div>
+</nav>
 
-<div id="dropdownTab" class="tab">
-    <h2>Dropdown Management</h2>
-    <div class="manage-box">
-        <h3>Courses</h3>
-        <input id="newCourse"><button onclick="addOpt('courses','newCourse')">Add</button>
-        <ul id="coursesList"></ul>
-    </div>
-    <div class="manage-box">
-        <h3>Years</h3>
-        <input id="newYear"><button onclick="addOpt('years','newYear')">Add</button>
-        <ul id="yearsList"></ul>
-    </div>
-    <div class="manage-box">
-        <h3>Sections</h3>
-        <input id="newSection"><button onclick="addOpt('sections','newSection')">Add</button>
-        <ul id="sectionsList"></ul>
-    </div>
-    <div class="manage-box" style="border: 2px solid red; margin-top:20px;">
-        <h3 style="color:red">Danger Zone</h3>
-        <button class="btn-danger-large" onclick="clearAllLocalStorage()">DELETE ALL SYSTEM DATA</button>
-    </div>
-</div>
+<!-- Main Wrapper -->
+<main class="flex-1 max-w-7xl w-full mx-auto p-4 md:p-6 lg:p-8">
 
-<div id="attendanceTab" class="tab">
-    <h2>Attendance Records</h2>
-    <div class="manage-box">
-        <label>Instructor: <input id="instructor" oninput="saveInstructor()"></label>
-        <label>Date: <input type="date" id="attDate" onchange="renderAttendance()"></label>
-        <label>Section: <select id="filterSection" onchange="renderAttendance()"></select></label>
-        <br><br>
-        <button onclick="printFilteredPDF()">Print Filtered View</button>
-        <button onclick="printPerSectionPDF()">Print All Sections</button>
-        <button class="btn-reset" onclick="resetDailyAttendance()">Clear Date Records</button>
+    <!-- 1. SCANNER TAB -->
+    <div id="scanTab" class="tab active-tab space-y-6">
+        <div class="max-w-xl mx-auto bg-white rounded-2xl border border-slate-200 shadow-xl overflow-hidden">
+            <div class="bg-slate-900 px-6 py-4 flex flex-col sm:flex-row justify-between items-center gap-3">
+                <h2 class="text-base font-bold text-white flex items-center gap-2"><i class="fa-solid fa-camera text-sky-400"></i> QR Scanner</h2>
+                <div class="flex items-center gap-2 w-full sm:w-auto">
+                    <select id="cameraSelection" class="bg-slate-800 text-slate-200 text-xs rounded-lg border border-slate-700 px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-blue-500 flex-1"></select>
+                    <button onclick="restartScanner()" class="bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold px-3 py-1.5 rounded-lg transition-colors flex items-center gap-1 shadow-sm"><i class="fa-solid fa-rotate"></i> Switch</button>
+                </div>
+            </div>
+            
+            <div class="p-6 flex flex-col items-center justify-center bg-linear-to-b from-slate-50 to-slate-100">
+                <div id="scanner" class="w-full max-w-[320px] aspect-square bg-slate-950 rounded-xl overflow-hidden border-[6px] border-slate-300 shadow-inner transition-all duration-300"></div>
+                <div class="mt-6 w-full text-center min-h-[50px] flex items-center justify-center px-4">
+                    <p id="scanStatus" class="text-lg font-bold tracking-tight transition-all duration-300"></p>
+                </div>
+            </div>
+        </div>
     </div>
-    <table id="printArea">
-        <thead>
-            <tr>
-                <th>#</th><th>ID</th><th>Name</th><th>Course</th>
-                <th>Year</th><th>Section</th><th>Status</th>
-            </tr>
-        </thead>
-        <tbody id="attendanceTable"></tbody>
-    </table>
-    <h3>Summary</h3>
-    <table>
-        <thead>
-            <tr><th>Section</th><th>Present</th><th>Absent</th><th>Total</th></tr>
-        </thead>
-        <tbody id="summaryTable"></tbody>
-    </table>
-</div>
 
-<div class="footer">@SirLavz2026 | RONALD T. LAVA, MSIT | INSTITUTE OF COMPUTER STUDIES | NAAP</div>
+    <!-- 2. STUDENT MANAGEMENT TAB -->
+    <div id="studentTab" class="tab space-y-6">
+        <div class="bg-white rounded-xl border border-slate-200 p-5 shadow-xs">
+            <h2 class="text-lg font-bold text-slate-900 mb-4 flex items-center gap-2"><i class="fa-solid fa-user-plus text-blue-600"></i> Student Profiles</h2>
+            <form id="studentForm" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 items-end">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-500 mb-1">Student ID</label>
+                    <input id="sid" placeholder="e.g. NAAP-2026-001" class="w-full text-sm bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 font-mono" required>
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-500 mb-1">Full Name</label>
+                    <input id="sname" placeholder="Juan Dela Cruz" class="w-full text-sm bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-500 mb-1">Course</label>
+                    <select id="course" class="w-full text-sm bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"></select>
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-500 mb-1">Year Level</label>
+                    <select id="year" class="w-full text-sm bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"></select>
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-500 mb-1">Section</label>
+                    <select id="section" class="w-full text-sm bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"></select>
+                </div>
+                <div class="sm:col-span-2 lg:col-span-5 flex justify-end gap-2 mt-2">
+                    <button type="button" onclick="resetStudentForm()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 text-sm font-semibold px-4 py-2 rounded-lg transition-colors">Clear Form</button>
+                    <button type="submit" id="submitBtn" class="bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold px-5 py-2 rounded-lg transition-colors shadow-sm flex items-center gap-2"><i class="fa-solid fa-plus"></i> Add Student</button>
+                </div>
+            </form>
+        </div>
+
+        <div class="bg-white rounded-xl border border-slate-200 shadow-xs overflow-hidden">
+            <div class="overflow-x-auto">
+                <table class="w-full border-collapse text-left text-sm text-slate-600">
+                    <thead class="bg-slate-50 text-xs font-bold text-slate-700 uppercase border-b border-slate-200">
+                        <tr>
+                            <th class="px-6 py-4 text-center">#</th>
+                            <th class="px-6 py-4">Student ID</th>
+                            <th class="px-6 py-4">Full Name</th>
+                            <th class="px-6 py-4">Course</th>
+                            <th class="px-6 py-4">Year</th>
+                            <th class="px-6 py-4">Section</th>
+                            <th class="px-6 py-4 text-center">QR Pass</th>
+                            <th class="px-6 py-4 text-right">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="studentTable" class="divide-y divide-slate-200"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- 3. DROPDOWN CONFIGURATION TAB -->
+    <div id="dropdownTab" class="tab space-y-6">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <!-- Course Setup -->
+            <div class="bg-white rounded-xl border border-slate-200 p-5 shadow-xs flex flex-col">
+                <h3 class="text-sm font-bold text-slate-900 mb-3 flex items-center gap-2"><i class="fa-solid fa-graduation-cap text-indigo-500"></i> Course Registry</h3>
+                <div class="flex gap-2 mb-4">
+                    <input id="newCourse" placeholder="e.g. BS Aero Eng" class="flex-1 text-sm bg-slate-50 border border-slate-200 rounded-lg px-3 py-1.5 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <button onclick="addOpt('courses','newCourse')" class="bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-bold px-3 py-1.5 rounded-lg transition-colors shadow-xs"><i class="fa-solid fa-plus"></i></button>
+                </div>
+                <ul id="coursesList" class="space-y-1.5 flex-1 max-h-[250px] overflow-y-auto pr-1"></ul>
+            </div>
+            <!-- Year Setup -->
+            <div class="bg-white rounded-xl border border-slate-200 p-5 shadow-xs flex flex-col">
+                <h3 class="text-sm font-bold text-slate-900 mb-3 flex items-center gap-2"><i class="fa-solid fa-layer-group text-emerald-500"></i> Year Management</h3>
+                <div class="flex gap-2 mb-4">
+                    <input id="newYear" placeholder="e.g. 1st Year" class="flex-1 text-sm bg-slate-50 border border-slate-200 rounded-lg px-3 py-1.5 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <button onclick="addOpt('years','newYear')" class="bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-bold px-3 py-1.5 rounded-lg transition-colors shadow-xs"><i class="fa-solid fa-plus"></i></button>
+                </div>
+                <ul id="yearsList" class="space-y-1.5 flex-1 max-h-[250px] overflow-y-auto pr-1"></ul>
+            </div>
+            <!-- Section Setup -->
+            <div class="bg-white rounded-xl border border-slate-200 p-5 shadow-xs flex flex-col">
+                <h3 class="text-sm font-bold text-slate-900 mb-3 flex items-center gap-2"><i class="fa-solid fa-users-rectangle text-amber-500"></i> Sections</h3>
+                <div class="flex gap-2 mb-4">
+                    <input id="newSection" placeholder="e.g. A-1" class="flex-1 text-sm bg-slate-50 border border-slate-200 rounded-lg px-3 py-1.5 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <button onclick="addOpt('sections','newSection')" class="bg-amber-600 hover:bg-amber-700 text-white text-sm font-bold px-3 py-1.5 rounded-lg transition-colors shadow-xs"><i class="fa-solid fa-plus"></i></button>
+                </div>
+                <ul id="sectionsList" class="space-y-1.5 flex-1 max-h-[250px] overflow-y-auto pr-1"></ul>
+            </div>
+        </div>
+
+        <!-- Danger Zone Box -->
+        <div class="bg-red-50 border border-red-200 rounded-xl p-5 shadow-xs mt-8">
+            <h3 class="text-sm font-bold text-red-800 mb-2 flex items-center gap-2"><i class="fa-solid fa-triangle-exclamation"></i> Danger Zone</h3>
+            <p class="text-xs text-red-600 mb-4">Performing this action will wipe all structural parameters, registered configurations, and local history stores irrevocably.</p>
+            <button class="bg-red-600 hover:bg-red-700 text-white text-xs font-bold px-4 py-2.5 rounded-lg transition-colors tracking-wide shadow-xs uppercase cursor-pointer" onclick="clearAllLocalStorage()">Purge System Database</button>
+        </div>
+    </div>
+
+    <!-- 4. ATTENDANCE SHEET TAB -->
+    <div id="attendanceTab" class="tab space-y-6">
+        <div class="bg-white rounded-xl border border-slate-200 p-5 shadow-xs">
+            <h2 class="text-lg font-bold text-slate-900 mb-4 flex items-center gap-2"><i class="fa-solid fa-sliders text-blue-600"></i> Filter Metrics</h2>
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 items-end">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-500 mb-1">Instructor Name</label>
+                    <input id="instructor" oninput="saveInstructor()" placeholder="Enter Faculty Name" class="w-full text-sm bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-500 mb-1">Target Date Range</label>
+                    <input type="date" id="attDate" onchange="renderAttendance()" class="w-full text-sm bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-500 mb-1">Section Assignment</label>
+                    <select id="filterSection" onchange="renderAttendance()" class="w-full text-sm bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"></select>
+                </div>
+            </div>
+            <div class="flex flex-wrap gap-2 mt-5 border-t border-slate-100 pt-4 justify-end">
+                <button onclick="printFilteredPDF()" class="bg-slate-800 hover:bg-slate-950 text-white text-xs font-bold px-4 py-2 rounded-lg transition-colors flex items-center gap-1.5 shadow-xs"><i class="fa-solid fa-print"></i> Print Window</button>
+                <button onclick="printPerSectionPDF()" class="bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold px-4 py-2 rounded-lg transition-colors flex items-center gap-1.5 shadow-xs"><i class="fa-solid fa-file-pdf"></i> Export Batch Sections</button>
+                <button onclick="resetDailyAttendance()" class="bg-amber-500 hover:bg-amber-600 text-white text-xs font-bold px-4 py-2 rounded-lg transition-colors flex items-center gap-1.5 shadow-xs"><i class="fa-solid fa-eraser"></i> Clear Day Records</button>
+            </div>
+        </div>
+
+        <!-- Master Attendance Log Document Area -->
+        <div class="bg-white rounded-xl border border-slate-200 shadow-xs overflow-hidden">
+            <div class="bg-slate-50 px-5 py-3.5 border-b border-slate-200 flex justify-between items-center">
+                <h3 class="text-sm font-bold text-slate-800">Attendance Sheet Log</h3>
+                <span class="text-xs bg-slate-200 font-bold px-2.5 py-1 rounded-full text-slate-700" id="logDateCounter">--</span>
+            </div>
+            <div class="overflow-x-auto">
+                <table id="printArea" class="w-full border-collapse text-left text-sm text-slate-600">
+                    <thead class="bg-slate-100 text-xs font-bold text-slate-700 uppercase border-b border-slate-200">
+                        <tr>
+                            <th class="px-6 py-3.5 text-center w-12">#</th>
+                            <th class="px-6 py-3.5">Student ID</th>
+                            <th class="px-6 py-3.5">Full Name</th>
+                            <th class="px-6 py-3.5">Course</th>
+                            <th class="px-6 py-3.5">Year</th>
+                            <th class="px-6 py-3.5">Section</th>
+                            <th class="px-6 py-3.5 text-center">Time In</th>
+                            <th class="px-6 py-3.5 text-center">Time Out</th>
+                            <th class="px-6 py-3.5 text-center">Status Matrix</th>
+                        </tr>
+                    </thead>
+                    <tbody id="attendanceTable" class="divide-y divide-slate-200"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Section Metrics Analytics Overview -->
+        <div class="bg-white rounded-xl border border-slate-200 shadow-xs overflow-hidden max-w-2xl">
+            <div class="bg-slate-50 px-5 py-3.5 border-b border-slate-200">
+                <h3 class="text-sm font-bold text-slate-800 flex items-center gap-2"><i class="fa-solid fa-chart-pie text-indigo-500"></i> Summary Matrix per Section</h3>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="w-full border-collapse text-left text-sm text-slate-600">
+                    <thead class="bg-slate-100 text-xs font-bold text-slate-700 uppercase border-b border-slate-200">
+                        <tr>
+                            <th class="px-6 py-3">Section Room</th>
+                            <th class="px-6 py-3 text-center">Present Headcount</th>
+                            <th class="px-6 py-3 text-center">Absent Registry</th>
+                            <th class="px-6 py-3 text-center">Total Enrolled</th>
+                        </tr>
+                    </thead>
+                    <tbody id="summaryTable" class="divide-y divide-slate-200"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</main>
+
+<!-- Sticky Footer -->
+<footer class="bg-white border-t border-slate-200 py-4 px-6 text-center text-xs text-slate-400 font-medium">
+    <div class="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-2">
+        <div>&copy; SirLavz2026 | RONALD T. LAVA, MSIT</div>
+        <div class="flex items-center gap-2 text-slate-500"><span class="h-1.5 w-1.5 bg-emerald-500 rounded-full animate-ping"></span>COLLEGE OF COMPUTING STUDIES | LAGUNA UNIVERSITY</div>
+    </div>
+</footer>
 
 <script>
 /* -------- DATA INITIALIZATION -------- */
@@ -150,7 +267,6 @@ let isProcessingScan = false;
 /* -------- DATE & CLOCK HELPERS -------- */
 function getTodayDate() {
     const now = new Date();
-    // Adjusted for local timezone to prevent UTC "yesterday" bug
     const offset = now.getTimezoneOffset() * 60000; 
     return (new Date(now - offset)).toISOString().split('T')[0];
 }
@@ -158,14 +274,21 @@ function getTodayDate() {
 function updateClock() {
     const now = new Date();
     const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit' };
-    document.getElementById('liveClock').textContent = now.toLocaleDateString('en-PH', options);
+    document.getElementById('liveClock').innerHTML = `<i class="fa-regular fa-clock text-sky-400 mr-2"></i>` + now.toLocaleDateString('en-PH', options);
 }
 setInterval(updateClock, 1000);
 
 /* -------- TAB NAVIGATION -------- */
-function showTab(id){
+function showTab(id, btnElement){
     document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active-tab'));
     document.getElementById(id).classList.add('active-tab');
+    
+    document.querySelectorAll('.nav-btn').forEach(b => {
+        b.classList.remove('text-blue-600', 'bg-blue-50');
+        b.classList.add('text-slate-600', 'hover:bg-slate-100');
+    });
+    btnElement.classList.remove('text-slate-600', 'hover:bg-slate-100');
+    btnElement.classList.add('text-blue-600', 'bg-blue-50');
 }
 
 /* -------- DROPDOWN LOGIC -------- */
@@ -186,7 +309,12 @@ function delOpt(type, v) {
 }
 
 function renderDrops() {
-    const mapList = (arr, type) => arr.map(x => `<li>${x} <button onclick="delOpt('${type}','${x}')">x</button></li>`).join("");
+    const mapList = (arr, type) => arr.map(x => `
+        <li class="flex justify-between items-center bg-slate-50 border border-slate-200 px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-700">
+            <span>${x}</span>
+            <button onclick="delOpt('${type}','${x}')" class="text-slate-400 hover:text-red-500 cursor-pointer transition-colors"><i class="fa-solid fa-trash-can"></i></button>
+        </li>
+    `).join("");
     coursesList.innerHTML = mapList(dropdowns.courses, 'courses');
     yearsList.innerHTML = mapList(dropdowns.years, 'years');
     sectionsList.innerHTML = mapList(dropdowns.sections, 'sections');
@@ -195,7 +323,7 @@ function renderDrops() {
     course.innerHTML = mapOpt(dropdowns.courses);
     year.innerHTML = mapOpt(dropdowns.years);
     section.innerHTML = mapOpt(dropdowns.sections);
-    filterSection.innerHTML = `<option value="ALL">ALL</option>` + mapOpt(dropdowns.sections);
+    filterSection.innerHTML = `<option value="ALL">All Sections Summary</option>` + mapOpt(dropdowns.sections);
 }
 
 /* -------- STUDENT LOGIC -------- */
@@ -213,34 +341,51 @@ studentForm.onsubmit = e => {
 function resetStudentForm() {
     studentForm.reset();
     sid.readOnly = false;
-    submitBtn.textContent = "Add Student";
+    submitBtn.innerHTML = `<i class="fa-solid fa-plus"></i> Add Student`;
 }
+
 function editStudent(id) {
-    let s = students.find(x => x.id === id);
-    if (s) {
-        sid.value = s.id;
-        sid.readOnly = true;
-        sname.value = s.name;
-        course.value = s.course;
-        year.value = s.year;
-        section.value = s.section;
-        submitBtn.textContent = "Update Student";
-        showTab('studentTab');
-    }
+    let s = students.find(x => x.id === id);
+    if (s) {
+        sid.value = s.id;
+        sid.readOnly = true;
+        sname.value = s.name;
+        course.value = s.course;
+        year.value = s.year;
+        section.value = s.section;
+        submitBtn.innerHTML = `<i class="fa-solid fa-pen-to-square"></i> Update Profile`;
+        showTab('studentTab', document.querySelectorAll('.nav-btn')[1]);
+    }
 }
 
 function delStudent(id) {
-    if (confirm("Delete this student?")) {
-        students = students.filter(s => s.id !== id);
-        save();
-        renderStudents();
-        renderAttendance();
-    }
+    if (confirm("Delete this student completely?")) {
+        students = students.filter(s => s.id !== id);
+        attendance = attendance.filter(a => a.id !== id); // Cascades delete records
+        save();
+        localStorage.setItem(ak, JSON.stringify(attendance));
+        renderStudents();
+        renderAttendance();
+    }
 }
+
 function renderStudents() {
     studentTable.innerHTML = "";
     students.forEach((s, i) => {
-        studentTable.innerHTML += `<tr><td>${i+1}</td><td>${s.id}</td><td>${s.name}</td><td>${s.course}</td><td>${s.year}</td><td>${s.section}</td><td><div id="qr${s.id}"></div></td><td><button class="btn-edit" onclick="editStudent('${s.id}')">Edit</button><button class="btn-del" onclick="delStudent('${s.id}')">Delete</button></td></tr>`;
+        studentTable.innerHTML += `
+            <tr class="hover:bg-slate-50 transition-colors">
+                <td class="px-6 py-4 font-semibold text-slate-400 text-center">${i+1}</td>
+                <td class="px-6 py-4 font-mono font-bold text-slate-900">${s.id}</td>
+                <td class="px-6 py-4 font-semibold text-slate-800">${s.name}</td>
+                <td class="px-6 py-4 text-xs font-medium text-slate-600">${s.course}</td>
+                <td class="px-6 py-4 text-xs font-medium text-slate-600">${s.year}</td>
+                <td class="px-6 py-4 text-xs font-bold text-indigo-600"><span class="bg-indigo-50 border border-indigo-100 px-2 py-0.5 rounded-md">${s.section}</span></td>
+                <td class="px-6 py-4"><div id="qr${s.id}" class="flex justify-center bg-white p-1 rounded border border-slate-200 w-[68px] mx-auto"></div></td>
+                <td class="px-6 py-4 text-right space-x-1 whitespace-nowrap">
+                    <button class="bg-blue-50 border border-blue-200 hover:bg-blue-100 text-blue-600 text-xs font-bold px-2.5 py-1.5 rounded-lg transition-colors cursor-pointer" onclick="editStudent('${s.id}')"><i class="fa-solid fa-pen-to-square"></i> Edit</button>
+                    <button class="bg-red-50 border border-red-200 hover:bg-red-100 text-red-600 text-xs font-bold px-2.5 py-1.5 rounded-lg transition-colors cursor-pointer" onclick="delStudent('${s.id}')"><i class="fa-solid fa-trash-can"></i> Delete</button>
+                </td>
+            </tr>`;
     });
     students.forEach(s => {
         let d = document.getElementById("qr"+s.id);
@@ -254,16 +399,31 @@ function saveInstructor(){ localStorage.setItem(ik, instructor.value); }
 function loadInstructor(){ instructor.value = localStorage.getItem(ik) || ""; }
 
 function clearAllLocalStorage() {
-    if (confirm("CRITICAL: Delete ALL data?")) { localStorage.clear(); location.reload(); }
+    if (confirm("CRITICAL WARNING: This completely deletes all student entries, logs, and layout adjustments. Proceed?")) { 
+        localStorage.clear(); 
+        location.reload(); 
+    }
 }
 
-/* -------- ATTENDANCE LOGIC -------- */
+/* -------- TEXT TO SPEECH (FILIPINO VOICE ASSIGNMENT) -------- */
 function speakMessage(text) {
     window.speechSynthesis.cancel(); 
     const msg = new SpeechSynthesisUtterance(text);
+    
+    // Explicit targeting of localized accents
+    const voices = window.speechSynthesis.getVoices();
+    // Searches for an exact localized Filipino language identifier, falls back to structural variants
+    const phVoice = voices.find(v => v.lang === 'en-PH' || v.lang.includes('tl-PH') || v.name.includes('Philippines'));
+    
+    if (phVoice) {
+        msg.voice = phVoice;
+    }
+    msg.rate = .92; // Slightly slower cadence optimal for clear Taglish syllable stress profiles
+    msg.pitch = 1.1;
     window.speechSynthesis.speak(msg);
 }
 
+/* -------- ATTENDANCE CORE TRACKER (TIME IN/OUT MATRIX) -------- */
 function markAttendance(id) {
     if (isProcessingScan) return;
     const scannerBox = document.getElementById("scanner");
@@ -272,42 +432,94 @@ function markAttendance(id) {
     isProcessingScan = true;
 
     if (!student) {
-        scannerBox.style.borderColor = "#ff4d4d";
-        status.style.color = "red";
-        status.textContent = "❌ ID: " + id + " Not Found!";
-        speakMessage("You are not in the list.");
-        setTimeout(() => { scannerBox.style.borderColor = "transparent"; status.textContent=""; isProcessingScan = false; }, 3000);
+        scannerBox.className = "w-full max-w-[320px] aspect-square bg-slate-950 rounded-xl overflow-hidden border-[6px] border-red-500 shadow-lg shadow-red-100";
+        status.className = "text-lg font-bold text-red-600 tracking-tight";
+        status.innerHTML = `<i class="fa-solid fa-circle-xmark mr-2"></i> Unknown ID: ${id}`;
+        speakMessage("You are not in the list. Please check your tracking ID.");
+        setTimeout(() => { resetScannerFrame(); }, 3500);
         return;
     }
 
     let d = getTodayDate();
-    if (attendance.some(a => a.id === id && a.date === d)) {
-        scannerBox.style.borderColor = "#ffc107";
-        status.style.color = "orange";
-        status.textContent = "⚠ Already Timed In: " + student.name;
-        speakMessage(student.name + ", you already timed-in.");
-        setTimeout(() => { scannerBox.style.borderColor = "transparent"; status.textContent=""; isProcessingScan = false; }, 3000);
-        return;
+    let logTime = new Date().toLocaleTimeString('en-PH', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true });
+    
+    // Fetch pre-existing registration tracking profiles
+    let recordIndex = attendance.findIndex(a => a.id === id && a.date === d);
+
+    if (recordIndex === -1) {
+        // Initial Entry Event: Perform Time In
+        attendance.push({ id: id, date: d, timeIn: logTime, timeOut: "—" });
+        localStorage.setItem(ak, JSON.stringify(attendance));
+        
+        scannerBox.className = "w-full max-w-[320px] aspect-square bg-slate-950 rounded-xl overflow-hidden border-[6px] border-emerald-500 shadow-lg shadow-emerald-100";
+        status.className = "text-lg font-bold text-emerald-600 tracking-tight";
+        status.innerHTML = `<i class="fa-solid fa-circle-check mr-2"></i> Time In: ${student.name}`;
+        speakMessage(`Thank you, ${student.name}. Welcome to Laguna University. Your time-in is recorded.`);
+    } else {
+        // Subsequent Event: Evaluate Time Out configuration states
+        let record = attendance[recordIndex];
+        if (record.timeOut !== "—") {
+            // Both states filled for the timestamp day cycle
+            scannerBox.className = "w-full max-w-[320px] aspect-square bg-slate-950 rounded-xl overflow-hidden border-[6px] border-amber-400 shadow-lg shadow-amber-100";
+            status.className = "text-lg font-bold text-amber-600 tracking-tight";
+            status.innerHTML = `<i class="fa-solid fa-triangle-exclamation mr-2"></i> ${student.name} Already Processed`;
+            speakMessage(`Hello, ${student.name}. Your Attendance is saved for today.`);
+        } else {
+            // Secondary Scan Context: Close out working session state via Time Out assignment
+            record.timeOut = logTime;
+            attendance[recordIndex] = record;
+            localStorage.setItem(ak, JSON.stringify(attendance));
+            
+            scannerBox.className = "w-full max-w-[320px] aspect-square bg-slate-950 rounded-xl overflow-hidden border-[6px] border-blue-500 shadow-lg shadow-blue-100";
+            status.className = "text-lg font-bold text-blue-600 tracking-tight";
+            status.innerHTML = `<i class="fa-solid fa-right-from-bracket mr-2"></i> Time Out: ${student.name}`;
+            speakMessage(`Thank You, ${student.name}. Your time-out is saved for today`);
+        }
     }
 
-    attendance.push({id, date: d});
-    localStorage.setItem(ak, JSON.stringify(attendance));
-    scannerBox.style.borderColor = "#28a745";
-    status.style.color = "green";
-    status.textContent = "✔ Welcome to National Aviation Academy of the Philippines";
-    speakMessage("Welcome to National Aviation Academy of the Philippines" );
     renderAttendance();
-    setTimeout(() => { scannerBox.style.borderColor = "transparent"; status.textContent=""; isProcessingScan = false; }, 3000);
+    setTimeout(() => { resetScannerFrame(); }, 3500);
+}
+
+function resetScannerFrame() {
+    const scannerBox = document.getElementById("scanner");
+    const status = document.getElementById("scanStatus");
+    scannerBox.className = "w-full max-w-[320px] aspect-square bg-slate-950 rounded-xl overflow-hidden border-[6px] border-slate-300 shadow-inner";
+    status.innerHTML = "";
+    isProcessingScan = false;
 }
 
 function renderAttendance() {
     let d = document.getElementById('attDate').value || getTodayDate();
     let sec = filterSection.value;
+    document.getElementById('logDateCounter').textContent = d;
     attendanceTable.innerHTML = "";
     let count = 1;
+
     students.filter(s => sec === "ALL" || s.section === sec).forEach(s => {
-        let present = attendance.some(a => a.id === s.id && a.date === d);
-        attendanceTable.innerHTML += `<tr><td>${count++}</td><td>${s.id}</td><td>${s.name}</td><td>${s.course}</td><td>${s.year}</td><td>${s.section}</td><td class="${present?'present':'absent'}">${present?'Present':'Absent'}</td></tr>`;
+        let record = attendance.find(a => a.id === s.id && a.date === d);
+        let hasTimedIn = !!record;
+        let hasTimedOut = record && record.timeOut !== "—";
+        
+        let statusBadge = `<span class="bg-red-50 text-red-700 border border-red-200 text-xs font-bold px-2.5 py-1 rounded-full"><i class="fa-solid fa-circle-dot text-[8px] mr-1.5 align-middle"></i>Absent</span>`;
+        if (hasTimedIn && hasTimedOut) {
+            statusBadge = `<span class="bg-blue-50 text-blue-700 border border-blue-200 text-xs font-bold px-2.5 py-1 rounded-full"><i class="fa-solid fa-circle-check text-[8px] mr-1.5 align-middle"></i>Completed</span>`;
+        } else if (hasTimedIn) {
+            statusBadge = `<span class="bg-emerald-50 text-emerald-700 border border-emerald-200 text-xs font-bold px-2.5 py-1 rounded-full"><i class="fa-solid fa-spinner animate-spin text-[8px] mr-1.5 align-middle"></i>Inside</span>`;
+        }
+
+        attendanceTable.innerHTML += `
+            <tr class="hover:bg-slate-50 transition-colors">
+                <td class="px-6 py-3.5 font-semibold text-slate-400 text-center">${count++}</td>
+                <td class="px-6 py-3.5 font-mono font-bold text-slate-900">${s.id}</td>
+                <td class="px-6 py-3.5 font-semibold text-slate-800">${s.name}</td>
+                <td class="px-6 py-3.5 text-xs text-slate-600">${s.course}</td>
+                <td class="px-6 py-3.5 text-xs text-slate-600">${s.year}</td>
+                <td class="px-6 py-3.5 text-xs font-bold text-slate-700"><span>${s.section}</span></td>
+                <td class="px-6 py-3.5 text-center font-mono text-xs font-bold ${record && record.timeIn ? 'text-slate-800':'text-slate-300'}">${record ? record.timeIn : '—'}</td>
+                <td class="px-6 py-3.5 text-center font-mono text-xs font-bold ${record && record.timeOut !== '—' ? 'text-indigo-600':'text-slate-300'}">${record ? record.timeOut : '—'}</td>
+                <td class="px-6 py-3.5 text-center">${statusBadge}</td>
+            </tr>`;
     });
     renderSummary(d);
 }
@@ -317,20 +529,26 @@ function renderSummary(d) {
     dropdowns.sections.forEach(sec => {
         let ss = students.filter(s => s.section === sec);
         let pres = ss.filter(s => attendance.some(a => a.id === s.id && a.date === d)).length;
-        summaryTable.innerHTML += `<tr><td>${sec}</td><td>${pres}</td><td>${ss.length-pres}</td><td>${ss.length}</td></tr>`;
+        summaryTable.innerHTML += `
+            <tr class="hover:bg-slate-50 transition-colors">
+                <td class="px-6 py-3 font-bold text-slate-800">${sec}</td>
+                <td class="px-6 py-3 text-center text-sm font-bold text-emerald-600 bg-emerald-50/40">${pres}</td>
+                <td class="px-6 py-3 text-center text-sm font-bold text-red-600 bg-red-50/40">${ss.length-pres}</td>
+                <td class="px-6 py-3 text-center text-sm font-bold text-slate-700 bg-slate-50">${ss.length}</td>
+            </tr>`;
     });
 }
 
 function resetDailyAttendance() {
     let d = attDate.value || getTodayDate();
-    if (confirm(`Clear records for ${d}?`)) {
+    if (confirm(`Clear all logs corresponding to date profile: ${d}?`)) {
         attendance = attendance.filter(a => a.date !== d);
         localStorage.setItem(ak, JSON.stringify(attendance));
         renderAttendance();
     }
 }
 
-/* -------- CAMERA / SCANNER -------- */
+/* -------- CAMERA / SCANNER CONTROL -------- */
 async function initScanner() {
     try {
         const devices = await Html5Qrcode.getCameras();
@@ -338,7 +556,7 @@ async function initScanner() {
             cameraSelection.innerHTML = devices.map(device => `<option value="${device.id}">${device.label}</option>`).join("");
             startScanner(devices[0].id);
         }
-    } catch (err) { console.error(err); }
+    } catch (err) { console.error("Camera interface deployment error:", err); }
 }
 
 function startScanner(cameraId) {
@@ -349,12 +567,12 @@ function startScanner(cameraId) {
 
 function attachScanner(cameraId) {
     html5QrCode = new Html5Qrcode("scanner");
-    html5QrCode.start(cameraId, {fps: 10, qrbox: 250}, markAttendance, () => {});
+    html5QrCode.start(cameraId, {fps: 15, qrbox: 220}, markAttendance, () => {});
 }
 
 function restartScanner() { startScanner(cameraSelection.value); }
 
-/* -------- PRINTING -------- */
+/* -------- HIGH QUALITY PRINT MODULE -------- */
 function printFilteredPDF(){
     let d = attDate.value || getTodayDate();
     let s = filterSection.value;
@@ -368,11 +586,15 @@ function printPerSectionPDF(){
     dropdowns.sections.forEach(sec => {
         let rows = "";
         students.filter(s => s.section === sec).forEach((s, idx) => {
-            let p = attendance.some(a => a.id === s.id && a.date === d);
-            rows += `<tr><td>${idx+1}</td><td>${s.id}</td><td>${s.name}</td><td>${s.course}</td><td>${s.year}</td><td>${s.section}</td><td>${p?'Present':'Absent'}</td></tr>`;
+            let record = attendance.find(a => a.id === s.id && a.date === d);
+            let timeInVal = record ? record.timeIn : '—';
+            let timeOutVal = record ? record.timeOut : '—';
+            let statusStr = record ? (record.timeOut !== '—' ? 'Completed' : 'Inside') : 'Absent';
+            
+            rows += `<tr><td>${idx+1}</td><td>${s.id}</td><td>${s.name}</td><td>${s.course}</td><td>${s.year}</td><td>${s.section}</td><td>${timeInVal}</td><td>${timeOutVal}</td><td>${statusStr}</td></tr>`;
         });
         if (rows !== "") {
-            let table = `<table><thead><tr><th>#</th><th>ID</th><th>Name</th><th>Course</th><th>Year</th><th>Section</th><th>Status</th></tr></thead><tbody>${rows}</tbody></table>`;
+            let table = `<table><thead><tr><th>#</th><th>ID</th><th>Name</th><th>Course</th><th>Year</th><th>Section</th><th>Time In</th><th>Time Out</th><th>Status</th></tr></thead><tbody>${rows}</tbody></table>`;
             printWindow(d, sec, i, table);
         }
     });
@@ -380,18 +602,48 @@ function printPerSectionPDF(){
 
 function printWindow(date, section, instructorName, tableBody){
     let w = window.open("");
-    w.document.write(`<html><head><style>body{font-family:Arial;padding:30px}.header{text-align:center}table{width:100%;border-collapse:collapse;margin-top:20px}th,td{border:1px solid #000;padding:8px;text-align:center}th{background:#222;color:#fff}</style></head><body><div class="header"><h2>NATIONAL AVIATION ACADEMY OF THE PHILIPPINES</h2><h3>Attendance Report</h3><p>Date: ${date} | Section: ${section} | Instructor: ${instructorName}</p></div>${tableBody}</body></html>`);
+    w.document.write(`
+        <html>
+        <head>
+            <title>Laguna University College of Computing Studies Attendance Sheet</title>
+            <style>
+                body{font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; padding:40px; color:#1e293b;}
+                .header{text-align:center; border-bottom: 2px dashed #cbd5e1; padding-bottom:20px; margin-bottom:25px;}
+                .header h2 { margin: 0; font-size: 20px; color: #0f172a; letter-spacing: 0.5px; }
+                .header h3 { margin: 5px 0 0 0; font-size: 14px; color: #475569; font-weight: 500; }
+                .header p { margin: 10px 0 0 0; font-size: 12px; color: #64748b; font-family: monospace; }
+                table{width:100%; border-collapse:collapse; margin-top:10px; font-size:12px;}
+                th,td{border:1px solid #e2e8f0; padding:10px 8px; text-align:left;}
+                th{background:#f8fafc; color:#334155; font-weight: bold; text-transform: uppercase; font-size: 10px;}
+                tr:nth-child(even) { background: #f8fafc; }
+            </style>
+        </head>
+        <body>
+            <div class="header">
+                <h2>LAGUNA UNIVERSITY</h2>
+                <h2>COLLEGE OF COMPUTING STUDIES</h2>
+                <h3>Attendance Sheet</h3>
+                <p>Date: ${date} | Section Focus: ${section} | Faculty: ${instructorName}</p>
+            </div>
+            ${tableBody}
+        <center> 
+        <p> _____________________</p>
+        <h5> ${instructorName}</h5>
+        </body>
+        </html>`);
     w.document.close();
-    w.print();
+    // Native scheduling buffer delay optimization for background engines
+    setTimeout(() => { w.print(); }, 500);
 }
 
-/* -------- INITIAL LOAD -------- */
+/* -------- BOOTSTRAP PIPELINE -------- */
 window.onload = () => {
-    // 1. Update Clock and Date Input immediately
+    // Engine pre-warming for local synthesis targets
+    if ('speechSynthesis' in window) { window.speechSynthesis.getVoices(); }
+    
     updateClock();
     document.getElementById('attDate').value = getTodayDate();
     
-    // 2. Load System Data
     initScanner();
     renderDrops();
     renderStudents();
