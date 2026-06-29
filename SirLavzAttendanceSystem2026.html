@@ -1,4 +1,4 @@
-  <!DOCTYPE html>
+   <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -111,6 +111,41 @@
                     <button type="submit" id="submitBtn" class="bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold px-5 py-2 rounded-lg transition-colors shadow-sm flex items-center gap-2"><i class="fa-solid fa-plus"></i> Add Student</button>
                 </div>
             </form>
+
+            <div class="mt-5 rounded-xl border border-dashed border-slate-300 bg-slate-50 p-4">
+                <div class="flex flex-col lg:flex-row gap-4">
+                    <div class="flex-1">
+                        <h3 class="text-sm font-bold text-slate-900 mb-2 flex items-center gap-2"><i class="fa-solid fa-file-csv text-emerald-600"></i> Bulk Student Import</h3>
+                        <p class="text-xs text-slate-600 mb-3">Paste CSV, TSV, or JSON data to add multiple students at once. Each row will create a student profile and a QR code automatically.</p>
+                        <textarea id="bulkStudentInput" rows="6" class="w-full text-sm bg-white border border-slate-200 rounded-lg px-3 py-2 focus:bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500" placeholder="Student ID,Full Name,Course,Year Level,Section&#10;NAAP-2026-001,Juan Dela Cruz,BSIT,2nd Year,A-1&#10;NAAP-2026-002,Marian Santos,BSCS,3rd Year,B-2"></textarea>
+                        <div class="flex flex-wrap gap-2 mt-3">
+                            <button type="button" onclick="importBulkStudents()" class="bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-semibold px-4 py-2 rounded-lg transition-colors shadow-sm flex items-center gap-2"><i class="fa-solid fa-cloud-arrow-up"></i> Import Students</button>
+                            <button type="button" onclick="seedBulkExample()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 text-sm font-semibold px-4 py-2 rounded-lg transition-colors">Load Sample</button>
+                            <label class="bg-blue-50 hover:bg-blue-100 text-blue-700 text-sm font-semibold px-4 py-2 rounded-lg transition-colors cursor-pointer flex items-center gap-2">
+                                <i class="fa-solid fa-file-arrow-up"></i> Upload File
+                                <input type="file" id="bulkStudentFile" accept=".csv,.txt,.json" class="hidden" onchange="handleBulkStudentFile(this.files[0])">
+                            </label>
+                        </div>
+                        <p id="bulkStatus" class="mt-3 text-xs text-slate-500">Ready to import students and generate their QR passes.</p>
+                    </div>
+                    <div class="w-full lg:w-72 space-y-3">
+                        <div class="rounded-lg border border-slate-200 bg-white p-3">
+                            <h4 class="text-[11px] font-semibold uppercase tracking-wide text-slate-500">Import Tips</h4>
+                            <ul class="mt-2 text-xs text-slate-600 space-y-1">
+                                <li>• Use headers like Student ID, Full Name, Course, Year Level, Section.</li>
+                                <li>• You can also paste tab-separated values or a JSON array.</li>
+                                <li>• Existing student IDs are updated instead of duplicated.</li>
+                            </ul>
+                        </div>
+                        <div class="rounded-lg border border-slate-200 bg-white p-3">
+                            <h4 class="text-[11px] font-semibold uppercase tracking-wide text-slate-500">Print QR Cards</h4>
+                            <label class="block text-xs font-semibold text-slate-500 mb-1 mt-2">Section</label>
+                            <select id="qrPrintSection" class="w-full text-sm bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"></select>
+                            <button type="button" onclick="printQrPdfPerSection()" class="mt-2 w-full bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold px-4 py-2 rounded-lg transition-colors shadow-sm flex items-center justify-center gap-2"><i class="fa-solid fa-file-pdf"></i> Print QR PDF</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
 
         <div class="bg-white rounded-xl border border-slate-200 shadow-xs overflow-hidden">
@@ -319,11 +354,14 @@ function renderDrops() {
     yearsList.innerHTML = mapList(dropdowns.years, 'years');
     sectionsList.innerHTML = mapList(dropdowns.sections, 'sections');
 
+    const studentSections = [...new Set(students.map(s => s.section).filter(Boolean))];
+    const availableSections = [...new Set([...(dropdowns.sections || []), ...studentSections])];
     const mapOpt = arr => arr.map(x => `<option value="${x}">${x}</option>`).join("");
     course.innerHTML = mapOpt(dropdowns.courses);
     year.innerHTML = mapOpt(dropdowns.years);
-    section.innerHTML = mapOpt(dropdowns.sections);
-    filterSection.innerHTML = `<option value="ALL">All Sections Summary</option>` + mapOpt(dropdowns.sections);
+    section.innerHTML = mapOpt(availableSections);
+    filterSection.innerHTML = `<option value="ALL">All Sections Summary</option>` + mapOpt(availableSections);
+    qrPrintSection.innerHTML = `<option value="">Select a section</option><option value="ALL">All Sections</option>` + mapOpt(availableSections);
 }
 
 /* -------- STUDENT LOGIC -------- */
@@ -369,6 +407,141 @@ function delStudent(id) {
     }
 }
 
+function parseDelimitedLine(line, delimiter) {
+    const values = [];
+    let current = "";
+    let inQuotes = false;
+
+    for (let i = 0; i < line.length; i++) {
+        const char = line[i];
+        if (char === '"') {
+            if (inQuotes && line[i + 1] === '"') {
+                current += '"';
+                i++;
+            } else {
+                inQuotes = !inQuotes;
+            }
+        } else if (char === delimiter && !inQuotes) {
+            values.push(current.trim());
+            current = "";
+        } else {
+            current += char;
+        }
+    }
+
+    values.push(current.trim());
+    return values;
+}
+
+function normalizeHeader(value) {
+    return String(value || "").toLowerCase().replace(/[^a-z0-9]+/g, "");
+}
+
+function parseBulkStudentData(inputText) {
+    const trimmed = String(inputText || "").trim();
+    if (!trimmed) return [];
+
+    if (trimmed.startsWith("[") || trimmed.startsWith("{")) {
+        try {
+            const parsed = JSON.parse(trimmed);
+            if (Array.isArray(parsed)) return parsed;
+            if (parsed && Array.isArray(parsed.students)) return parsed.students;
+        } catch (error) {
+            console.warn("Bulk import JSON parse failed", error);
+        }
+    }
+
+    const delimiter = trimmed.includes("\t") ? "\t" : ",";
+    const lines = trimmed.split(/\r?\n/).filter(line => line.trim());
+    if (!lines.length) return [];
+
+    const rows = lines.map(line => parseDelimitedLine(line, delimiter));
+    const headers = rows[0].map(normalizeHeader);
+    const isHeaderRow = headers.some(h => ["studentid", "id", "studentnumber", "studentno", "fullname", "name", "course", "year", "yearlevel", "section"].includes(h));
+    const dataRows = isHeaderRow ? rows.slice(1) : rows;
+
+    return dataRows
+        .map(values => {
+            const normalizedValues = values.map(v => v.trim());
+            const headerMap = {};
+            headers.forEach((header, index) => {
+                headerMap[header] = normalizedValues[index] || "";
+            });
+
+            const record = {
+                id: headerMap.studentid || headerMap.id || headerMap.studentnumber || headerMap.studentno || normalizedValues[0] || "",
+                name: headerMap.fullname || headerMap.name || headerMap.studentname || normalizedValues[1] || "",
+                course: headerMap.course || headerMap.program || normalizedValues[2] || "",
+                year: headerMap.year || headerMap.yearlevel || normalizedValues[3] || "",
+                section: headerMap.section || headerMap.sectionname || normalizedValues[4] || ""
+            };
+
+            return record;
+        })
+        .filter(record => record.id && record.name);
+}
+
+function importBulkStudents() {
+    const input = document.getElementById('bulkStudentInput').value;
+    const parsedRecords = parseBulkStudentData(input);
+    const statusBox = document.getElementById('bulkStatus');
+
+    if (!parsedRecords.length) {
+        statusBox.innerHTML = '<span class="text-amber-600">No valid student rows were found. Check the import format and try again.</span>';
+        return;
+    }
+
+    let added = 0;
+    let updated = 0;
+
+    parsedRecords.forEach(record => {
+        const id = String(record.id).trim();
+        const name = String(record.name).trim();
+        if (!id || !name) return;
+
+        const studentData = {
+            id,
+            name,
+            course: String(record.course || "").trim(),
+            year: String(record.year || "").trim(),
+            section: String(record.section || "").trim()
+        };
+
+        const existingIndex = students.findIndex(student => student.id === id);
+        if (existingIndex >= 0) {
+            students[existingIndex] = studentData;
+            updated++;
+        } else {
+            students.push(studentData);
+            added++;
+        }
+    });
+
+    save();
+    renderStudents();
+    renderAttendance();
+    statusBox.innerHTML = `<span class="text-emerald-600">Imported ${added} new student(s) and updated ${updated} existing profile(s). QR passes were generated.</span>`;
+    document.getElementById('bulkStudentInput').value = "";
+}
+
+function seedBulkExample() {
+    document.getElementById('bulkStudentInput').value = `Student ID,Full Name,Course,Year Level,Section
+NAAP-2026-001,Juan Dela Cruz,BSIT,2nd Year,A-1
+NAAP-2026-002,Marian Santos,BSCS,3rd Year,B-2
+NAAP-2026-003,Renzo Torres,BSIS,1st Year,C-3`;
+    document.getElementById('bulkStatus').innerHTML = '<span class="text-slate-600">Sample bulk data loaded. Review it and click Import Students.</span>';
+}
+
+function handleBulkStudentFile(file) {
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = event => {
+        document.getElementById('bulkStudentInput').value = event.target.result;
+        document.getElementById('bulkStatus').innerHTML = `<span class="text-slate-600">Loaded ${file.name}. Review the data and click Import Students.</span>`;
+    };
+    reader.readAsText(file);
+}
+
 function renderStudents() {
     studentTable.innerHTML = "";
     students.forEach((s, i) => {
@@ -397,6 +570,109 @@ function save(){ localStorage.setItem(sk, JSON.stringify(students)); }
 function saveDrop(){ localStorage.setItem(dk, JSON.stringify(dropdowns)); }
 function saveInstructor(){ localStorage.setItem(ik, instructor.value); }
 function loadInstructor(){ instructor.value = localStorage.getItem(ik) || ""; }
+
+function generateQrDataUrl(text, size = 220) {
+    return new Promise(resolve => {
+        const temp = document.createElement('div');
+        temp.style.display = 'inline-block';
+        temp.style.width = `${size}px`;
+        temp.style.height = `${size}px`;
+        document.body.appendChild(temp);
+        new QRCode(temp, { text, width: size, height: size, correctLevel: QRCode.CorrectLevel.H });
+        setTimeout(() => {
+            const canvas = temp.querySelector('canvas');
+            const img = temp.querySelector('img');
+            const dataUrl = canvas ? canvas.toDataURL('image/png') : (img ? img.src : '');
+            temp.remove();
+            resolve(dataUrl);
+        }, 80);
+    });
+}
+
+async function printQrPdfPerSection() {
+    const selectedSection = qrPrintSection.value;
+    if (!selectedSection) {
+        alert('Please select a section first.');
+        return;
+    }
+
+    const sectionsToPrint = selectedSection === 'ALL'
+        ? dropdowns.sections.filter(Boolean)
+        : [selectedSection];
+
+    if (!sectionsToPrint.length) {
+        alert('No sections are configured yet.');
+        return;
+    }
+
+    const printWindowRef = window.open('', '_blank', 'width=1100,height=1400');
+    if (!printWindowRef) {
+        alert('Please allow pop-ups to print QR cards.');
+        return;
+    }
+
+    const sectionMarkup = [];
+    for (const sectionName of sectionsToPrint) {
+        const sectionStudents = students.filter(s => s.section === sectionName);
+        if (!sectionStudents.length) continue;
+
+        const cards = [];
+        for (const student of sectionStudents) {
+            const qrDataUrl = await generateQrDataUrl(student.id, 180);
+            cards.push(`
+                <div class="qr-card">
+                    <div class="qr-box"><img src="${qrDataUrl}" alt="${student.id}"></div>
+                    <div class="qr-info">
+                        <div class="qr-id">${student.id}</div>
+                        <div class="qr-name">${student.name}</div>
+                        <div class="qr-meta">${student.course} • ${student.year} • ${student.section}</div>
+                    </div>
+                </div>
+            `);
+        }
+
+        sectionMarkup.push(`
+            <div class="section-block">
+                <div class="section-header">Section: ${sectionName}</div>
+                <div class="card-grid">${cards.join('')}</div>
+            </div>
+        `);
+    }
+
+    if (!sectionMarkup.length) {
+        printWindowRef.close();
+        alert('No students were found for the selected section.');
+        return;
+    }
+
+    printWindowRef.document.write(`
+        <html>
+        <head>
+            <title>QR Passes by Section</title>
+            <style>
+                body { font-family: 'Segoe UI', sans-serif; margin: 24px; color: #0f172a; }
+                .section-block { page-break-after: always; margin-bottom: 24px; }
+                .section-block:last-child { page-break-after: auto; }
+                .section-header { font-size: 18px; font-weight: 700; margin-bottom: 14px; border-bottom: 2px solid #e2e8f0; padding-bottom: 6px; }
+                .card-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+                .qr-card { border: 1px solid #e2e8f0; border-radius: 12px; padding: 14px; display: flex; align-items: center; gap: 14px; background: #fff; }
+                .qr-box { flex-shrink: 0; width: 180px; text-align: center; }
+                .qr-box img { width: 180px; height: 180px; }
+                .qr-info { min-width: 0; }
+                .qr-id { font-weight: 700; font-size: 14px; color: #1d4ed8; }
+                .qr-name { font-weight: 700; font-size: 15px; margin-top: 4px; }
+                .qr-meta { font-size: 12px; color: #64748b; margin-top: 4px; }
+                @media print { body { margin: 10px; } .section-block { page-break-after: always; } }
+            </style>
+        </head>
+        <body>
+            ${sectionMarkup.join('')}
+        </body>
+        </html>
+    `);
+    printWindowRef.document.close();
+    setTimeout(() => printWindowRef.print(), 400);
+}
 
 function clearAllLocalStorage() {
     if (confirm("CRITICAL WARNING: This completely deletes all student entries, logs, and layout adjustments. Proceed?")) { 
