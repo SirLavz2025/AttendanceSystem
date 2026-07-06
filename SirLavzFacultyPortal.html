@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>CCS Faculty Workspace | Data Management Hub</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap');
+    body {
+        font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Plus Jakarta Sans', sans-serif;
+    }
+    .tab { display: none; }
+    .active-tab { display: block; animation: tabFade 0.4s ease; }
+    @keyframes tabFade { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+</style>
+</head>
+
+<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col antialiased">
+
+<header class="bg-slate-900 text-white px-6 py-4 shadow-md">
+    <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
+        <div class="flex items-center gap-3">
+            <i class="fa-solid fa-user-shield text-2xl text-emerald-400"></i>
+            <div>
+                <h1 class="text-lg font-bold tracking-tight">Faculty Administration Hub</h1>
+                <p class="text-[10px] text-slate-400 uppercase tracking-wider font-semibold">Laguna University System Control</p>
+            </div>
+        </div>
+        <div class="flex items-center gap-3">
+            <a href="SirLavzAttendance.html" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold px-4 py-2 rounded-xl transition-all"><i class="fa-solid fa-id-card mr-1"></i> Open NFC Terminal</a>
+            <a href="index.html" class="bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold px-4 py-2 rounded-xl transition-all"><i class="fa-solid fa-power-off"></i> Exit Workspace</a>
+        </div>
+    </div>
+</header>
+
+<nav class="bg-white border-b border-slate-200 sticky top-0 z-50 px-4 shadow-xs">
+    <div class="max-w-7xl mx-auto flex gap-2 py-2.5 overflow-x-auto whitespace-nowrap">
+        <button onclick="changeAdminTab('studentTab', this)" class="admin-nav-btn bg-emerald-50 text-emerald-700 px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-1.5"><i class="fa-solid fa-user-graduate"></i> Student Profiles Management</button>
+        <button onclick="changeAdminTab('dropdownTab', this)" class="admin-nav-btn text-slate-600 hover:bg-slate-100 px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-1.5"><i class="fa-solid fa-sliders"></i> Dropdown Parameter Settings</button>
+        <button onclick="changeAdminTab('attendanceTab', this)" class="admin-nav-btn text-slate-600 hover:bg-slate-100 px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-1.5"><i class="fa-solid fa-clipboard-check"></i> Attendance Ledger Sheets</button>
+    </div>
+</nav>
+
+<main class="flex-1 max-w-7xl w-full mx-auto p-4 md:p-6 lg:p-8">
+
+    <div id="studentTab" class="tab active-tab space-y-6">
+        <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-xs">
+            <h2 class="text-base font-extrabold text-slate-900 mb-4 flex items-center gap-2"><i class="fa-solid fa-user-plus text-emerald-600"></i> Register Student Profiles</h2>
+            <form id="studentForm" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 items-end">
+                <div>
+                    <label class="block text-xs font-bold text-slate-500 mb-1">NFC Card UID (Hex Layout)</label>
+                    <div class="relative">
+                        <input id="sid" placeholder="04:A1:2B:3C:4D:5E:6F" class="w-full text-xs font-bold font-mono bg-slate-50 border border-slate-200 rounded-xl pl-3 pr-8 py-2.5 focus:bg-white focus:outline-none" required>
+                        <button type="button" onclick="captureHardwareNfcId()" title="Scan physical card to grab UID mapping" class="absolute right-2 top-2.5 text-emerald-600 hover:text-emerald-800"><i class="fa-solid fa-rss"></i></button>
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-500 mb-1">Full Name (LASTNAME, FIRSTNAME M.)</label>
+                    <input id="sname" placeholder="LAVA, RONALD T." class="w-full text-xs bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 focus:bg-white focus:outline-none" required>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-500 mb-1">Course Track</label>
+                    <select id="course" class="w-full text-xs bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 focus:bg-white focus:outline-none"></select>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-500 mb-1">Academic Year</label>
+                    <select id="year" class="w-full text-xs bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 focus:bg-white focus:outline-none"></select>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-500 mb-1">Section Assignment</label>
+                    <select id="section" class="w-full text-xs bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 focus:bg-white focus:outline-none"></select>
+                </div>
+                <div class="sm:col-span-2 lg:col-span-5 flex justify-end gap-2 mt-2">
+                    <button type="button" onclick="resetStudentForm()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold px-4 py-2 rounded-xl transition-all">Clear Fields</button>
+                    <button type="submit" id="submitBtn" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold px-5 py-2 rounded-xl transition-all flex items-center gap-1.5"><i class="fa-solid fa-plus"></i> Save Student Record</button>
+                </div>
+            </form>
+
+            <div class="mt-6 border-t border-dashed border-slate-200 pt-5">
+                <div class="flex flex-col lg:flex-row gap-6">
+                    <div class="flex-1">
+                        <h3 class="text-xs font-bold text-slate-900 mb-2 flex items-center gap-2"><i class="fa-solid fa-file-csv text-emerald-600"></i> Bulk Data Parser Engine</h3>
+                        <textarea id="bulkStudentInput" rows="5" class="w-full text-xs font-mono p-3 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:outline-none" placeholder="Card UID,Full Name,Course,Year Level,Section&#10;04:A1:2B:3C:4D:5E:6F,DELA CRUZ, JUAN,BSIT,2nd Year,2A"></textarea>
+                        <div class="flex flex-wrap gap-2 mt-2">
+                            <button onclick="importBulkStudents()" class="bg-slate-900 hover:bg-slate-950 text-white text-xs font-bold px-4 py-2 rounded-xl"><i class="fa-solid fa-upload mr-1"></i> Parse Bulk Input</button>
+                            <button onclick="seedBulkExample()" class="bg-slate-100 text-slate-600 hover:bg-slate-200 text-xs font-bold px-4 py-2 rounded-xl">Load Matrix Template</button>
+                        </div>
+                    </div>
+                    <div class="w-full lg:w-64 bg-slate-50 rounded-2xl p-4 border border-slate-200 flex flex-col justify-between">
+                        <div>
+                            <h4 class="text-xs font-bold text-slate-800 mb-1">Roster Index Generation</h4>
+                            <p class="text-[11px] text-slate-400 leading-normal">System lists use hardware-tied Hex strings to authenticate tracking parameters securely across local workspace clusters.</p>
+                        </div>
+                        <button onclick="window.print()" class="w-full mt-4 bg-slate-800 hover:bg-slate-950 text-white text-xs font-bold py-2.5 rounded-xl"><i class="fa-solid fa-print mr-1"></i> Print Roster Overview</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden">
+            <div class="overflow-x-auto">
+                <table class="w-full text-left text-xs text-slate-600 min-w-[800px]">
+                    <thead class="bg-slate-50 text-[11px] font-bold text-slate-500 uppercase tracking-wider border-b border-slate-200">
+                        <tr>
+                            <th class="px-6 py-4 text-center w-12">#</th>
+                            <th class="px-6 py-4 w-48">NFC UID Standard</th>
+                            <th class="px-6 py-4">Full Name</th>
+                            <th class="px-6 py-4">Course Track</th>
+                            <th class="px-6 py-4">Year</th>
+                            <th class="px-6 py-4">Section</th>
+                            <th class="px-6 py-4 text-right w-36">Actions Matrix</th>
+                        </tr>
+                    </thead>
+                    <tbody id="studentTable" class="divide-y divide-slate-100"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div id="dropdownTab" class="tab space-y-6">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div class="bg-white rounded-2xl border border-slate-200 p-5 flex flex-col">
+                <h3 class="text-xs font-bold text-slate-900 mb-3 flex items-center gap-1.5"><i class="fa-solid fa-graduation-cap text-emerald-600"></i> Course Track Arrays</h3>
+                <div class="flex gap-2 mb-4">
+                    <input id="newCourse" placeholder="e.g. BSCS" class="flex-1 text-xs bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 focus:bg-white focus:outline-none">
+                    <button onclick="addOpt('courses','newCourse')" class="bg-slate-900 text-white px-3 rounded-xl"><i class="fa-solid fa-plus"></i></button>
+                </div>
+                <ul id="coursesList" class="space-y-1 flex-1 max-h-[300px] overflow-y-auto"></ul>
+            </div>
+
+            <div class="bg-white rounded-2xl border border-slate-200 p-5 flex flex-col">
+                <h3 class="text-xs font-bold text-slate-900 mb-3 flex items-center gap-1.5"><i class="fa-solid fa-layer-group text-blue-600"></i> Year Brackets</h3>
+                <div class="flex gap-2 mb-4">
+                    <input id="newYear" placeholder="e.g. 1st Year" class="flex-1 text-xs bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 focus:bg-white focus:outline-none">
+                    <button onclick="addOpt('years','newYear')" class="bg-slate-900 text-white px-3 rounded-xl"><i class="fa-solid fa-plus"></i></button>
+                </div>
+                <ul id="yearsList" class="space-y-1 flex-1 max-h-[300px] overflow-y-auto"></ul>
+            </div>
+
+            <div class="bg-white rounded-2xl border border-slate-200 p-5 flex flex-col">
+                <h3 class="text-xs font-bold text-slate-900 mb-3 flex items-center gap-1.5"><i class="fa-solid fa-users text-amber-600"></i> Active Sections</h3>
+                <div class="flex gap-2 mb-4">
+                    <input id="newSection" placeholder="e.g. 2A" class="flex-1 text-xs bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 focus:bg-white focus:outline-none">
+                    <button onclick="addOpt('sections','newSection')" class="bg-slate-900 text-white px-3 rounded-xl"><i class="fa-solid fa-plus"></i></button>
+                </div>
+                <ul id="sectionsList" class="space-y-1 flex-1 max-h-[300px] overflow-y-auto"></ul>
+            </div>
+        </div>
+
+        <div class="bg-red-50 border border-red-200 rounded-2xl p-5">
+            <h3 class="text-xs font-bold text-red-800 mb-1 flex items-center gap-1.5"><i class="fa-solid fa-triangle-exclamation"></i> Storage Purge Directive</h3>
+            <p class="text-[11px] text-red-600 mb-3">Wipes all cached data including students list, tracking histories, and settings keys immediately.</p>
+            <button onclick="clearAllLocalStorage()" class="bg-red-600 hover:bg-red-700 text-white text-[11px] font-bold px-4 py-2 rounded-xl">Wipe System Databases</button>
+        </div>
+    </div>
+
+    <div id="attendanceTab" class="tab space-y-6">
+        <div class="bg-white rounded-2xl border border-slate-200 p-5">
+            <h3 class="text-xs font-bold text-slate-900 mb-3">Query Parameters Filter</h3>
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div>
+                    <label class="block text-[11px] font-bold text-slate-400 mb-1">Faculty Instructor Name</label>
+                    <input id="instructor" oninput="saveInstructor()" placeholder="Enter Proctor Name" class="w-full text-xs bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 focus:bg-white focus:outline-none">
+                </div>
+                <div>
+                    <label class="block text-[11px] font-bold text-slate-400 mb-1">Target Date Parameter</label>
+                    <input type="date" id="attDate" onchange="renderAttendance()" class="w-full text-xs bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 focus:bg-white focus:outline-none">
+                </div>
+                <div>
+                    <label class="block text-[11px] font-bold text-slate-400 mb-1">Section Assignment</label>
+                    <select id="filterSection" onchange="renderAttendance()" class="w-full text-xs bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 focus:bg-white focus:outline-none"></select>
+                </div>
+            </div>
+            <div class="flex flex-wrap gap-2 mt-4 pt-3 border-t border-slate-100 justify-end">
+                <button onclick="printFilteredPDF()" class="bg-slate-900 hover:bg-black text-white text-xs font-bold px-4 py-2 rounded-xl"><i class="fa-solid fa-print mr-1"></i> Print Window View</button>
+                <button onclick="printPerSectionPDF()" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold px-4 py-2 rounded-xl"><i class="fa-solid fa-file-zipper mr-1"></i> Batch Section Print</button>
+                <button onclick="resetDailyAttendance()" class="bg-amber-500 hover:bg-amber-600 text-white text-xs font-bold px-4 py-2 rounded-xl"><i class="fa-solid fa-trash-can mr-1"></i> Purge Day Log</button>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
+            <div class="bg-white rounded-2xl border border-slate-200 overflow-hidden lg:col-span-2">
+                <div class="bg-slate-50 px-4 py-3 border-b border-slate-200 flex justify-between items-center">
+                    <span class="text-xs font-bold text-slate-700">Live Verification Log Ledger</span>
+                    <span id="logDateCounter" class="text-[10px] bg-slate-200 text-slate-700 px-2 py-0.5 rounded-full font-bold"></span>
+                </div>
+                <div class="overflow-x-auto">
+                    <table id="printArea" class="w-full text-left text-xs min-w-[600px]">
+                        <thead class="bg-slate-100 border-b border-slate-200 font-bold text-slate-500">
+                            <tr>
+                                <th class="px-4 py-3 text-center w-12">#</th>
+                                <th class="px-4 py-3 w-40">NFC UID Mapping</th>
+                                <th class="px-4 py-3">Full Name</th>
+                                <th class="px-4 py-3">Course</th>
+                                <th class="px-4 py-3">Section</th>
+                                <th class="px-4 py-3 text-center">Time In</th>
+                                <th class="px-4 py-3 text-center">Time Out</th>
+                                <th class="px-4 py-3 text-center">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="attendanceTable" class="divide-y divide-slate-100"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-2xl border border-slate-200 overflow-hidden">
+                <div class="bg-slate-50 px-4 py-3 border-b border-slate-200">
+                    <h3 class="text-xs font-bold text-slate-700"><i class="fa-solid fa-chart-simple text-emerald-600"></i> Section Roll Aggregation Summary</h3>
+                </div>
+                <table class="w-full text-left text-xs">
+                    <thead class="bg-slate-100 font-bold text-slate-500">
+                        <tr>
+                            <th class="px-4 py-2.5">Room</th>
+                            <th class="px-4 py-2.5 text-center">Pres</th>
+                            <th class="px-4 py-2.5 text-center">Abs</th>
+                            <th class="px-4 py-2.5 text-center">Total</th>
+                        </tr>
+                    </thead>
+                    <tbody id="summaryTable" class="divide-y divide-slate-100 font-medium"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</main>
+
+<script>
+const sk="students", ak="attendance", dk="dropdowns", ik="instructor";
+let students = JSON.parse(localStorage.getItem(sk)) || [];
+let attendance = JSON.parse(localStorage.getItem(ak)) || [];
+let dropdowns = JSON.parse(localStorage.getItem(dk)) || {courses:[], years:[], sections:[]};
+
+function getTodayDate() {
+    const now = new Date();
+    const offset = now.getTimezoneOffset() * 60000; 
+    return (new Date(now - offset)).toISOString().split('T')[0];
+}
+
+function changeAdminTab(id, btnElement) {
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active-tab'));
+    document.getElementById(id).classList.add('active-tab');
+    document.querySelectorAll('.admin-nav-btn').forEach(b => b.className = "admin-nav-btn text-slate-600 hover:bg-slate-100 px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-1.5");
+    btnElement.className = "admin-nav-btn bg-emerald-50 text-emerald-700 px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-1.5";
+}
+
+async function captureHardwareNfcId() {
+    const targetInput = document.getElementById("sid");
+    if (!('NDEFReader' in window)) {
+        alert("Web NFC interface is not available in this browser. Please map the hexadecimal value manually.");
+        return;
+    }
+    try {
+        targetInput.placeholder = "Listening for tag contact...";
+        const reader = new NDEFReader();
+        await reader.scan();
+        reader.onreading = ({ serialNumber }) => {
+            let formatted = serialNumber.toUpperCase();
+            if (!formatted.includes(":") && formatted.length > 2) {
+                formatted = formatted.match(/.{1,2}/g).join(":");
+            }
+            targetInput.value = formatted;
+            targetInput.placeholder = "04:A1:2B:3C:4D:5E:6F";
+        };
+    } catch (err) {
+        alert("Hardware reader initialization failed: " + err.message);
+        targetInput.placeholder = "04:A1:2B:3C:4D:5E:6F";
+    }
+}
+
+function addOpt(type, id) {
+    let v = document.getElementById(id).value.trim();
+    if (v && !dropdowns[type].includes(v)) {
+        dropdowns[type].push(v);
+        localStorage.setItem(dk, JSON.stringify(dropdowns));
+        renderDrops();
+    }
+    document.getElementById(id).value = "";
+}
+
+function delOpt(type, v) {
+    dropdowns[type] = dropdowns[type].filter(x => x !== v);
+    localStorage.setItem(dk, JSON.stringify(dropdowns));
+    renderDrops();
+}
+
+function renderDrops() {
+    const listFactory = (arr, type) => arr.map(x => `
+        <li class="flex justify-between items-center bg-slate-50 border border-slate-200 px-3 py-1.5 rounded-xl text-[11px] font-bold text-slate-700">
+            <span>${x}</span>
+            <button onclick="delOpt('${type}','${x}')" class="text-slate-400 hover:text-red-500 transition-colors"><i class="fa-solid fa-trash-can"></i></button>
+        </li>
+    `).join("");
+    coursesList.innerHTML = listFactory(dropdowns.courses, 'courses');
+    yearsList.innerHTML = listFactory(dropdowns.years, 'years');
+    sectionsList.innerHTML = listFactory(dropdowns.sections, 'sections');
+
+    const combinedSections = [...new Set([...(dropdowns.sections || []), ...students.map(s => s.section).filter(Boolean)])];
+    const optFactory = arr => arr.map(x => `<option value="${x}">${x}</option>`).join("");
+    
+    course.innerHTML = optFactory(dropdowns.courses);
+    year.innerHTML = optFactory(dropdowns.years);
+    section.innerHTML = optFactory(combinedSections);
+    filterSection.innerHTML = `<option value="ALL">All Combined Summaries</option>` + optFactory(combinedSections);
+}
+
+studentForm.onsubmit = e => {
+    e.preventDefault();
+    let cleanId = sid.value.trim().toUpperCase();
+    let i = students.findIndex(s => s.id === cleanId);
+    let obj = {id: cleanId, name: sname.value.trim(), course: course.value, year: year.value, section: section.value};
+    if (i >= 0) students[i] = obj; else students.push(obj);
+    localStorage.setItem(sk, JSON.stringify(students));
+    renderStudents();
+    resetStudentForm();
+};
+
+function resetStudentForm() {
+    studentForm.reset();
+    sid.readOnly = false;
+    submitBtn.innerHTML = `<i class="fa-solid fa-plus"></i> Save Student Record`;
+}
+
+function editStudent(id) {
+    let s = students.find(x => x.id === id);
+    if (s) {
+        sid.value = s.id; sid.readOnly = true;
+        sname.value = s.name; course.value = s.course; year.value = s.year; section.value = s.section;
+        submitBtn.innerHTML = `<i class="fa-solid fa-pen-to-square"></i> Update Profile`;
+    }
+}
+
+function delStudent(id) {
+    if (confirm("Permanently erase student index from records?")) {
+        students = students.filter(s => s.id !== id);
+        attendance = attendance.filter(a => a.id !== id);
+        localStorage.setItem(sk, JSON.stringify(students));
+        localStorage.setItem(ak, JSON.stringify(attendance));
+        renderStudents();
+        renderAttendance();
+    }
+}
+
+function parseBulkStudentData(inputText) {
+    const trimmed = String(inputText || "").trim();
+    if (!trimmed) return [];
+    const lines = trimmed.split(/\r?\n/).filter(line => line.trim());
+    if (!lines.length) return [];
+    const delimiter = trimmed.includes("\t") ? "\t" : ",";
+    const dataRows = (["card uid", "id", "uid", "fullname", "name"].includes(lines[0].toLowerCase().split(delimiter)[0])) ? lines.slice(1) : lines;
+
+    return dataRows.map(line => {
+        const parts = line.split(delimiter).map(p => p.trim().replace(/^"|"$/g, ''));
+        return { id: parts[0] || "", name: parts[1] || "", course: parts[2] || "", year: parts[3] || "", section: parts[4] || "" };
+    }).filter(r => r.id && r.name);
+}
+
+function importBulkStudents() {
+    const input = document.getElementById('bulkStudentInput').value;
+    const records = parseBulkStudentData(input);
+    if (!records.length) return alert("Failed parsing rows. Check structural format mapping rules.");
+    
+    records.forEach(r => {
+        let cleanId = r.id.toUpperCase();
+        r.id = cleanId;
+        let idx = students.findIndex(s => s.id === cleanId);
+        if (idx >= 0) students[idx] = r; else students.push(r);
+    });
+    localStorage.setItem(sk, JSON.stringify(students));
+    renderStudents();
+    document.getElementById('bulkStudentInput').value = "";
+    alert("Bulk NFC data payload synchronized successfully.");
+}
+
+function seedBulkExample() {
+    document.getElementById('bulkStudentInput').value = "Card UID,Full Name,Course,Year Level,Section\n04:A1:2B:3C:4D:5E:6F,LAVA, RONALD T.,BSIT,2nd Year,2A\n04:B2:3C:4D:5E:6F:7A,DELA CRUZ, JUAN,BSCS,1st Year,1B";
+}
+
+function renderStudents() {
+    studentTable.innerHTML = "";
+    students.forEach((s, i) => {
+        studentTable.innerHTML += `
+            <tr class="hover:bg-slate-50 font-medium">
+                <td class="px-6 py-3.5 text-slate-400 font-bold text-center">${i+1}</td>
+                <td class="px-6 py-3.5 font-mono font-bold text-blue-700 bg-slate-50/50">${s.id}</td>
+                <td class="px-6 py-3.5 font-semibold text-slate-800">${s.name}</td>
+                <td class="px-6 py-3.5 text-slate-500">${s.course}</td>
+                <td class="px-6 py-3.5 text-slate-500">${s.year}</td>
+                <td class="px-6 py-3.5 font-bold text-emerald-700">${s.section}</td>
+                <td class="px-6 py-3.5 text-right space-x-1 whitespace-nowrap">
+                    <button class="bg-slate-100 hover:bg-slate-200 text-slate-700 text-[11px] font-bold px-2 py-1 rounded-lg" onclick="editStudent('${s.id}')">Edit</button>
+                    <button class="bg-red-50 hover:bg-red-100 text-red-600 text-[11px] font-bold px-2 py-1 rounded-lg" onclick="delStudent('${s.id}')">Delete</button>
+                </td>
+            </tr>`;
+    });
+}
+
+function saveInstructor() { localStorage.setItem(ik, instructor.value); }
+
+function renderAttendance() {
+    let d = document.getElementById('attDate').value || getTodayDate();
+    let sec = filterSection.value;
+    document.getElementById('logDateCounter').textContent = d;
+    attendanceTable.innerHTML = "";
+    let count = 1;
+
+    students.filter(s => sec === "ALL" || s.section === sec).forEach(s => {
+        let record = attendance.find(a => a.id === s.id && a.date === d);
+        let statusBadge = `<span class="bg-red-50 text-red-700 text-[11px] font-bold px-2 py-0.5 rounded-full">Absent</span>`;
+        if (record && record.timeOut !== "—") statusBadge = `<span class="bg-blue-50 text-blue-700 text-[11px] font-bold px-2 py-0.5 rounded-full">Completed</span>`;
+        else if (record) statusBadge = `<span class="bg-emerald-50 text-emerald-700 text-[11px] font-bold px-2 py-0.5 rounded-full">Inside</span>`;
+
+        attendanceTable.innerHTML += `
+            <tr class="hover:bg-slate-50 font-medium">
+                <td class="px-4 py-2.5 text-center text-slate-400 font-bold">${count++}</td>
+                <td class="font-mono font-bold text-slate-600 px-4">${s.id}</td>
+                <td class="px-4 font-semibold">${s.name}</td>
+                <td class="px-4 text-slate-500">${s.course}</td>
+                <td class="px-4 text-slate-500">${s.section}</td>
+                <td class="px-4 text-center font-mono font-bold">${record ? record.timeIn : '—'}</td>
+                <td class="px-4 text-center font-mono font-bold">${record ? record.timeOut : '—'}</td>
+                <td class="px-4 text-center">${statusBadge}</td>
+            </tr>`;
+    });
+    renderSummary(d);
+}
+
+function renderSummary(d) {
+    summaryTable.innerHTML = "";
+    const activeSections = [...new Set([...(dropdowns.sections || []), ...students.map(s => s.section).filter(Boolean)])];
+    activeSections.forEach(sec => {
+        let ss = students.filter(s => s.section === sec);
+        if(!ss.length) return;
+        let pres = ss.filter(s => attendance.some(a => a.id === s.id && a.date === d)).length;
+        summaryTable.innerHTML += `
+            <tr>
+                <td class="px-4 py-2 font-bold text-slate-800">${sec}</td>
+                <td class="px-4 text-center font-bold text-emerald-600 bg-emerald-50/20">${pres}</td>
+                <td class="px-4 text-center font-bold text-red-600 bg-red-50/20">${ss.length-pres}</td>
+                <td class="px-4 text-center font-bold text-slate-500 bg-slate-50">${ss.length}</td>
+            </tr>`;
+    });
+}
+
+function resetDailyAttendance() {
+    let d = attDate.value || getTodayDate();
+    if (confirm(`Flush data logs for date scope: ${d}?`)) {
+        attendance = attendance.filter(a => a.date !== d);
+        localStorage.setItem(ak, JSON.stringify(attendance));
+        renderAttendance();
+    }
+}
+
+function clearAllLocalStorage() {
+    if (confirm("Wipe structural datasets completely?")) { localStorage.clear(); location.reload(); }
+}
+
+function executePrintLayout(filterHeading, tableMarkup) {
+    let pRef = window.open("");
+    pRef.document.write(`
+        <html>
+        <head><style>
+            body { font-family: sans-serif; padding: 40px; color: #0f172a; }
+            table { width: 100%; border-collapse: collapse; font-size: 11px; margin-top: 15px; }
+            th, td { border: 1px solid #cbd5e1; padding: 8px; text-align: left; }
+            th { background: #f1f5f9; font-size: 9px; text-transform: uppercase; }
+        </style></head>
+        <body>
+            <center><h2>Laguna University</h2><h3>College of Computing Studies</h3><p>Report Date Scope: ${attDate.value} | Filter: ${filterHeading}</p></center>
+            ${tableMarkup}
+        </body></html>`);
+    pRef.document.close();
+    setTimeout(() => pRef.print(), 400);
+}
+
+function printFilteredPDF() { executePrintLayout(filterSection.value, document.getElementById("printArea").outerHTML); }
+
+function printPerSectionPDF() {
+    let d = attDate.value || getTodayDate();
+    const activeSections = [...new Set([...(dropdowns.sections || []), ...students.map(s => s.section).filter(Boolean)])];
+    activeSections.forEach(sec => {
+        let rows = "";
+        students.filter(s => s.section === sec).forEach((s, idx) => {
+            let log = attendance.find(a => a.id === s.id && a.date === d);
+            rows += `<tr><td>${idx+1}</td><td>${s.id}</td><td>${s.name}</td><td>${s.course}</td><td>${log ? log.timeIn : '—'}</td><td>${log ? log.timeOut : '—'}</td></tr>`;
+        });
+        if(rows) executePrintLayout(sec, `<table><thead><tr><th>#</th><th>NFC UID</th><th>Name</th><th>Course</th><th>In</th><th>Out</th></tr></thead><tbody>${rows}</tbody></table>`);
+    });
+}
+
+window.onload = () => {
+    document.getElementById('attDate').value = getTodayDate();
+    instructor.value = localStorage.getItem(ik) || "";
+    renderDrops(); renderStudents(); renderAttendance();
+};
+</script>
+</body>
+</html>

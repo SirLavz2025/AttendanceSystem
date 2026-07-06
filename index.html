@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>LU College of Computing Studies | Portal Hub</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
+    
+    :root { color-scheme: light; }
+    
+    body {
+        font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Plus Jakarta Sans', sans-serif;
+        background: radial-gradient(circle at top right, #f8fafc 0%, #f1f5f9 50%, #e2e8f0 100%);
+    }
+
+    .glass-panel {
+        background: linear-gradient(135deg, rgba(255, 255, 255, 0.9), rgba(241, 245, 249, 0.75));
+        backdrop-filter: blur(24px);
+        -webkit-backdrop-filter: blur(24px);
+        border: 1px solid rgba(255, 255, 255, 0.7);
+    }
+
+    .animated-blob {
+        position: absolute;
+        border-radius: 50%;
+        filter: blur(60px);
+        z-index: 0;
+        opacity: 0.4;
+        animation: blobFloat 8s infinite ease-in-out;
+    }
+
+    @keyframes blobFloat {
+        0%, 100% { transform: translateY(0px) scale(1); }
+        50% { transform: translateY(-20px) scale(1.05); }
+    }
+
+    .fade-in-up {
+        animation: fadeInUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    @keyframes fadeInUp {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+</style>
+</head>
+
+<body class="antialiased min-h-screen flex flex-col justify-between relative overflow-x-hidden">
+
+<div class="animated-blob bg-emerald-200 w-96 h-96 top-[-10%] left-[-5%]"></div>
+<div class="animated-blob bg-teal-100 w-80 h-80 bottom-[10%] right-[-5%]"></div>
+
+<nav class="w-full max-w-7xl mx-auto px-6 py-4 flex justify-between items-center relative z-10">
+    <div class="flex items-center gap-3">
+        <img src="https://github.com/SirLavz2025/AttendanceSystem/blob/main/ccs.jpg?raw=true" alt="CCS Logo" class="h-11 w-auto object-contain rounded-lg shadow-xs">
+        <div>
+            <span class="text-xs font-bold uppercase tracking-widest text-emerald-800 block">Laguna University</span>
+            <span class="text-[10px] font-semibold text-slate-400 uppercase tracking-wider block">College of Computing Studies</span>
+        </div>
+    </div>
+    <div class="flex items-center gap-4">
+        <div id="liveClock" class="hidden sm:inline-block text-xs font-bold text-slate-500 bg-slate-100 border border-slate-200/60 px-3.5 py-1.5 rounded-full">
+            <i class="fa-regular fa-clock text-emerald-600 mr-1.5"></i>Syncing Time...
+        </div>
+    </div>
+</nav>
+
+<main class="flex-1 max-w-5xl w-full mx-auto px-6 py-12 flex flex-col lg:flex-row items-center justify-between gap-12 relative z-10">
+    
+    <div class="flex-1 space-y-6 text-center lg:text-left fade-in-up">
+        <span class="bg-emerald-100 text-emerald-800 text-xs font-extrabold px-3.5 py-1.5 rounded-full uppercase tracking-wider inline-block">
+            Smart Campus Portal
+        </span>
+        <h1 class="text-4xl sm:text-5xl font-extrabold text-slate-900 tracking-tight leading-tight">
+            CCS Unified Attendance <br class="hidden sm:inline"> & <span class="text-transparent bg-clip-text bg-gradient-to-r from-emerald-700 to-teal-600">Faculty Management</span>
+        </h1>
+        <p class="text-sm sm:text-base text-slate-500 font-medium max-w-xl mx-auto lg:mx-0 leading-relaxed">
+            Welcome to the Laguna University College of Computing Studies administrative ecosystem. Authenticate to manage real-time verification sheets, map courses, or track contactless NFC hardware scanning pipelines seamlessly.
+        </p>
+    </div>
+
+    <div class="w-full max-w-md space-y-4 fade-in-up" style="animation-delay: 0.15s;">
+        
+        <a href="SirLavzAttendance.html" class="glass-panel p-6 rounded-2xl shadow-xs border border-slate-200 block transition-all duration-300 hover:translate-y-[-4px] hover:shadow-xl group">
+            <div class="flex items-start gap-4">
+                <div class="p-4 bg-emerald-50 text-emerald-700 rounded-xl text-2xl transition-transform group-hover:scale-110">
+                    <i class="fa-solid fa-id-card"></i>
+                </div>
+                <div class="flex-1 space-y-1">
+                    <div class="flex items-center justify-between">
+                        <h3 class="font-extrabold text-slate-800 text-base">Student NFC Pass Scanner</h3>
+                        <i class="fa-solid fa-arrow-right text-slate-300 group-hover:text-emerald-600 transition-colors"></i>
+                    </div>
+                    <p class="text-xs text-slate-400 font-medium leading-normal">
+                        Launch contactless transceiver terminal console to interface with smart cards and record timestamp matrices instantly.
+                    </p>
+                </div>
+            </div>
+        </a>
+
+        <button onclick="toggleLoginModal(true)" class="w-full text-left glass-panel p-6 rounded-2xl shadow-xs border border-slate-200 block transition-all duration-300 hover:translate-y-[-4px] hover:shadow-xl group cursor-pointer">
+            <div class="flex items-start gap-4">
+                <div class="p-4 bg-blue-50 text-blue-700 rounded-xl text-2xl transition-transform group-hover:scale-110">
+                    <i class="fa-solid fa-user-shield"></i>
+                </div>
+                <div class="flex-1 space-y-1">
+                    <div class="flex items-center justify-between">
+                        <h3 class="font-extrabold text-slate-800 text-base">Faculty Management Hub</h3>
+                        <i class="fa-solid fa-lock text-slate-300 group-hover:text-blue-600 transition-colors"></i>
+                    </div>
+                    <p class="text-xs text-slate-400 font-medium leading-normal">
+                        Access administrative analytics, edit student profiles, customize tracking registry drop-downs, and generate batch layout reports.
+                    </p>
+                </div>
+            </div>
+        </button>
+
+    </div>
+</main>
+
+<div id="loginModal" class="fixed inset-0 z-50 bg-slate-950/40 backdrop-blur-md flex items-center justify-center p-4 opacity-0 pointer-events-none transition-opacity duration-300">
+    <div class="w-full max-w-sm bg-white rounded-2xl shadow-2xl border border-slate-200 overflow-hidden transform scale-95 transition-transform duration-300 flex flex-col">
+        <div class="bg-gradient-to-r from-emerald-800 to-teal-700 p-5 text-white relative">
+            <button onclick="toggleLoginModal(false)" class="absolute top-4 right-4 text-white/70 hover:text-white transition-colors cursor-pointer text-lg">
+                <i class="fa-solid fa-circle-xmark"></i>
+            </button>
+            <h3 class="font-bold text-base flex items-center gap-2"><i class="fa-solid fa-shield-halved"></i> Faculty Verification</h3>
+            <p class="text-[11px] text-emerald-100 mt-0.5 font-medium">Please enter secure credentials to bypass security block.</p>
+        </div>
+
+        <form id="facultyLoginForm" onsubmit="handlePortalAuth(event)" class="p-6 space-y-4">
+            <div id="loginErrorMsg" class="hidden text-xs font-bold text-red-600 bg-red-50 border border-red-100 p-3 rounded-xl"><i class="fa-solid fa-circle-exclamation mr-1.5"></i>Invalid credentials mapping match.</div>
+            
+            <div>
+                <label class="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">Proctor Identifier (ID)</label>
+                <div class="relative">
+                    <i class="fa-solid fa-user-tie absolute left-3.5 top-3 text-slate-400"></i>
+                    <input type="text" id="facultyIdInput" placeholder="admin" required class="w-full text-xs font-mono font-bold pl-10 pr-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-emerald-600">
+                </div>
+            </div>
+
+            <div>
+                <label class="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">Administrative Password</label>
+                <div class="relative">
+                    <i class="fa-solid fa-key absolute left-3.5 top-3 text-slate-400"></i>
+                    <input type="password" id="facultyPassInput" placeholder="••••••••" required class="w-full text-xs pl-10 pr-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-emerald-600">
+                </div>
+            </div>
+
+            <button type="submit" class="w-full mt-2 bg-slate-900 hover:bg-slate-950 text-white text-xs font-bold py-3 rounded-xl transition-colors cursor-pointer flex items-center justify-center gap-2 shadow-md">
+                <i class="fa-solid fa-right-to-bracket"></i> Verify Credentials
+            </button>
+        </form>
+    </div>
+</div>
+
+<footer class="w-full bg-white/60 border-t border-slate-200/80 py-4 px-6 text-center text-[11px] text-slate-400 font-semibold relative z-10">
+    <div class="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-2">
+        <div>&copy; SirLavz2026 | RONALD T. LAVA, MSIT</div>
+        <div class="flex items-center gap-2 text-slate-500">Laguna University • College of Computing Studies</div>
+    </div>
+</footer>
+
+<script>
+function renderLiveClock() {
+    const timeNow = new Date();
+    const parameters = { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit', hour12: true };
+    document.getElementById('liveClock').innerHTML = `<i class="fa-regular fa-clock text-emerald-600 mr-1.5"></i>` + timeNow.toLocaleDateString('en-PH', parameters);
+}
+setInterval(renderLiveClock, 1000);
+
+function toggleLoginModal(shouldShow) {
+    const modalEl = document.getElementById("loginModal");
+    const containerCard = modalEl.querySelector("div");
+    const errorBox = document.getElementById("loginErrorMsg");
+
+    if (shouldShow) {
+        errorBox.classList.add("hidden");
+        document.getElementById("facultyLoginForm").reset();
+        modalEl.classList.remove("opacity-0", "pointer-events-none");
+        containerCard.classList.remove("scale-95");
+        containerCard.classList.add("scale-100");
+    } else {
+        modalEl.classList.add("opacity-0", "pointer-events-none");
+        containerCard.classList.remove("scale-100");
+        containerCard.classList.add("scale-95");
+    }
+}
+
+function handlePortalAuth(event) {
+    event.preventDefault();
+    const enteredId = document.getElementById("facultyIdInput").value.trim();
+    const enteredPass = document.getElementById("facultyPassInput").value;
+    const errorBox = document.getElementById("loginErrorMsg");
+
+    const currentStoredInstructor = localStorage.getItem("instructor") || "";
+    const isDefaultAdmin = (enteredId === "admin" && enteredPass === "ccs1234");
+    const isDynamicMatch = (currentStoredInstructor && enteredId === "faculty" && enteredPass === currentStoredInstructor);
+
+    if (isDefaultAdmin || isDynamicMatch) {
+        errorBox.classList.add("hidden");
+        const targetBtn = event.target.querySelector("button[type='submit']");
+        targetBtn.innerHTML = `<i class="fa-solid fa-spinner animate-spin"></i> Authenticating...`;
+        targetBtn.className = "w-full mt-2 bg-emerald-600 text-white text-xs font-bold py-3 rounded-xl flex items-center justify-center gap-2";
+        
+        setTimeout(() => {
+            window.location.href = "SirLavzFacultyPortal.html";
+        }, 800);
+    } else {
+        errorBox.classList.remove("hidden");
+    }
+}
+window.onload = renderLiveClock;
+</script>
+</body>
+</html>

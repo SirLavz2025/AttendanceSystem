@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>SirLavz NFC Attendance Terminal</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap');
+    body {
+        font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Plus Jakarta Sans', sans-serif;
+        background: radial-gradient(circle at top left, #eef6ff 0%, #f8fbff 28%, #f4f7fb 60%, #eef2f7 100%);
+    }
+    
+    .pulse-glow {
+        animation: activePulse 2s infinite ease-in-out;
+    }
+    @keyframes activePulse {
+        0%, 100% { box-shadow: 0 0 0 0px rgba(16, 185, 129, 0.4); }
+        50% { box-shadow: 0 0 0 16px rgba(16, 185, 129, 0); }
+    }
+</style>
+</head>
+
+<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col justify-between antialiased">
+
+<header class="bg-gradient-to-r from-emerald-800 to-emerald-700 text-white shadow-xl px-4 py-4">
+    <div class="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-4">
+        <div class="flex items-center gap-4 text-center sm:text-left">
+            <div class="p-2 bg-white/10 rounded-xl backdrop-blur-md">
+                <img src="https://github.com/SirLavz2025/AttendanceSystem/blob/main/ccs.jpg?raw=true" alt="CCS Logo" class="h-12 w-auto object-contain block" />
+            </div>
+            <div>
+                <h1 class="text-xl font-bold tracking-tight">SirLavz NFC Attendance Terminal</h1>
+                <p class="text-[11px] text-slate-300 font-medium uppercase tracking-wider">Laguna University - College of Computing Studies</p>
+            </div>
+        </div>
+        <div class="flex items-center gap-3">
+            <div id="liveClock" class="text-xs font-semibold text-emerald-300 bg-white/10 border border-white/10 px-4 py-2 rounded-xl"><i class="fa-regular fa-clock mr-2"></i>Loading Clock...</div>
+            <a href="index.html" class="bg-white text-emerald-800 hover:bg-slate-100 text-xs font-bold px-3 py-2 rounded-xl transition-all flex items-center gap-1.5 shadow-xs"><i class="fa-solid fa-house"></i> Home</a>
+        </div>
+    </div>
+</header>
+
+<main class="flex-1 max-w-xl w-full mx-auto p-4 flex flex-col justify-center items-center">
+    <div class="w-full bg-white rounded-3xl border border-slate-200 shadow-2xl overflow-hidden">
+        <div class="bg-slate-900 px-6 py-4 flex justify-between items-center">
+            <h2 class="text-sm font-bold text-white flex items-center gap-2"><i class="fa-solid fa-wireless-rss text-emerald-400"></i> Contactless NFC Transceiver</h2>
+            <div>
+                <button id="triggerNfcBtn" onclick="activateNfcScanner()" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold px-4 py-1.5 rounded-xl transition-colors flex items-center gap-1.5"><i class="fa-solid fa-power-off"></i> Initialize Receiver</button>
+            </div>
+        </div>
+        
+        <div class="p-8 flex flex-col items-center justify-center bg-gradient-to-b from-slate-50 to-slate-100">
+            <div id="nfcStatusFrame" class="w-full max-w-[280px] aspect-square bg-slate-950 rounded-2xl flex flex-col justify-center items-center border-[6px] border-slate-300 shadow-inner transition-all duration-300 text-slate-400">
+                <i id="statusIcon" class="fa-solid fa-id-card text-5xl mb-4 transition-transform duration-300"></i>
+                <span id="hardwarePrompt" class="text-xs uppercase font-extrabold tracking-widest text-slate-500">Scanner Offline</span>
+            </div>
+            <div class="mt-6 w-full text-center min-h-[60px] flex items-center justify-center px-4">
+                <p id="scanStatus" class="text-base font-extrabold tracking-tight transition-all duration-300 text-slate-500">Initialize terminal system to start tracking pipeline.</p>
+            </div>
+        </div>
+    </div>
+</main>
+
+<footer class="bg-white/80 border-t border-slate-200 py-4 px-6 text-center text-xs text-slate-400 font-medium">
+    <div>&copy; SirLavz2026 | College of Computing Studies Terminal System</div>
+</footer>
+
+<script>
+const sk="students", ak="attendance";
+let students = JSON.parse(localStorage.getItem(sk)) || [];
+let attendance = JSON.parse(localStorage.getItem(ak)) || [];
+let isProcessingScan = false;
+let ndefInstance = null;
+
+function getTodayDate() {
+    const now = new Date();
+    const offset = now.getTimezoneOffset() * 60000; 
+    return (new Date(now - offset)).toISOString().split('T')[0];
+}
+
+function updateClock() {
+    const now = new Date();
+    const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true };
+    document.getElementById('liveClock').innerHTML = `<i class="fa-regular fa-clock text-emerald-400 mr-2"></i>` + now.toLocaleDateString('en-PH', options);
+}
+setInterval(updateClock, 1000);
+
+function speakMessage(text) {
+    window.speechSynthesis.cancel(); 
+    const msg = new SpeechSynthesisUtterance(text);
+    const voices = window.speechSynthesis.getVoices();
+    const phVoice = voices.find(v => v.lang === 'en-PH' || v.lang.includes('tl-PH') || v.name.includes('Philippines'));
+    if (phVoice) msg.voice = phVoice;
+    msg.rate = .92;
+    msg.pitch = 1.1;
+    window.speechSynthesis.speak(msg);
+}
+
+async function activateNfcScanner() {
+    const btn = document.getElementById("triggerNfcBtn");
+    const frame = document.getElementById("nfcStatusFrame");
+    const prompt = document.getElementById("hardwarePrompt");
+    const icon = document.getElementById("statusIcon");
+    const statusText = document.getElementById("scanStatus");
+
+    if (!('NDEFReader' in window)) {
+        statusText.className = "text-base font-bold text-red-600";
+        statusText.innerHTML = `<i class="fa-solid fa-triangle-exclamation mr-2"></i> Web NFC API Unsupported by browser platform.`;
+        alert("Please use Google Chrome or Edge on an NFC-compatible device.");
+        return;
+    }
+
+    try {
+        btn.disabled = true;
+        btn.className = "bg-slate-700 text-slate-400 text-xs font-semibold px-4 py-1.5 rounded-xl cursor-not-allowed";
+        btn.innerHTML = `<i class="fa-solid fa-spinner animate-spin"></i> Polling...`;
+        
+        ndefInstance = new NDEFReader();
+        await ndefInstance.scan();
+        
+        frame.className = "w-full max-w-[280px] aspect-square bg-slate-950 rounded-2xl flex flex-col justify-center items-center border-[6px] border-emerald-500 text-emerald-400 pulse-glow";
+        icon.className = "fa-solid fa-circle-nodes text-5xl mb-4 text-emerald-400 animate-pulse";
+        prompt.textContent = "Receiver Listening";
+        statusText.className = "text-sm text-slate-600 font-bold animate-pulse";
+        statusText.innerHTML = "Tap student smart card against structural sensor array...";
+
+        ndefInstance.addEventListener("readingerror", () => {
+            if(isProcessingScan) return;
+            statusText.className = "text-sm font-bold text-amber-500";
+            statusText.innerHTML = `<i class="fa-solid fa-triangle-exclamation mr-1"></i> Checksum mismatch. Reposition tag structure.`;
+        });
+
+        ndefInstance.addEventListener("reading", ({ serialNumber }) => {
+            if (isProcessingScan) return;
+            
+            // Format serial standard layout (XX:XX:XX:XX...)
+            let formattedUid = serialNumber.toUpperCase();
+            if (formattedUid.includes(":") === false && formattedUid.length > 2) {
+                formattedUid = formattedUid.match(/.{1,2}/g).join(":");
+            }
+            
+            processCardIdentity(formattedUid);
+        });
+
+    } catch (err) {
+        console.error("NFC registration sequence broke down:", err);
+        btn.disabled = false;
+        btn.className = "bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold px-4 py-1.5 rounded-xl transition-colors";
+        btn.innerHTML = `<i class="fa-solid fa-power-off"></i> Initialize Receiver`;
+        frame.className = "w-full max-w-[280px] aspect-square bg-slate-950 rounded-2xl flex flex-col justify-center items-center border-[6px] border-red-500 text-red-500";
+        icon.className = "fa-solid fa-circle-exclamation text-5xl mb-4";
+        prompt.textContent = "Access Denied";
+        statusText.className = "text-xs text-red-600 font-bold";
+        statusText.innerHTML = "Hardware communication permission rejected.";
+    }
+}
+
+function processCardIdentity(cardUid) {
+    const frame = document.getElementById("nfcStatusFrame");
+    const status = document.getElementById("scanStatus");
+    const icon = document.getElementById("statusIcon");
+    const prompt = document.getElementById("hardwarePrompt");
+    
+    isProcessingScan = true;
+    frame.classList.remove("pulse-glow");
+    icon.className = "fa-solid fa-spinner text-5xl mb-4 text-blue-400 animate-spin";
+    prompt.textContent = "Processing Record";
+
+    const student = students.find(s => s.id === cardUid);
+
+    if (!student) {
+        frame.className = "w-full max-w-[280px] aspect-square bg-slate-950 rounded-2xl flex flex-col justify-center items-center border-[6px] border-red-500 text-red-500 shadow-xl shadow-red-100";
+        icon.className = "fa-solid fa-circle-xmark text-5xl mb-4";
+        prompt.textContent = "Unknown ID";
+        status.className = "text-base font-bold text-red-600";
+        status.innerHTML = `<i class="fa-solid fa-ban mr-2"></i> Unregistered Tag Matrix: ${cardUid}`;
+        speakMessage("You are not in the database. Please check your registry profile.");
+        setTimeout(restoreHardwarePollingLayout, 3800);
+        return;
+    }
+
+    let d = getTodayDate();
+    let logTime = new Date().toLocaleTimeString('en-PH', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true });
+    let recordIndex = attendance.findIndex(a => a.id === cardUid && a.date === d);
+
+    if (recordIndex === -1) {
+        attendance.push({ id: cardUid, date: d, timeIn: logTime, timeOut: "—" });
+        localStorage.setItem(ak, JSON.stringify(attendance));
+        frame.className = "w-full max-w-[280px] aspect-square bg-slate-950 rounded-2xl flex flex-col justify-center items-center border-[6px] border-emerald-500 text-emerald-500 shadow-xl shadow-emerald-100";
+        icon.className = "fa-solid fa-circle-check text-5xl mb-4";
+        prompt.textContent = "Logged In";
+        status.className = "text-base font-bold text-emerald-600";
+        status.innerHTML = `<i class="fa-solid fa-circle-check mr-2"></i> Time In: ${student.name}`;
+        speakMessage(`Thank you, ${student.name}. Your time-in is recorded.`);
+    } else {
+        let record = attendance[recordIndex];
+        if (record.timeOut !== "—") {
+            frame.className = "w-full max-w-[280px] aspect-square bg-slate-950 rounded-2xl flex flex-col justify-center items-center border-[6px] border-amber-400 text-amber-400 shadow-xl shadow-amber-100";
+            icon.className = "fa-solid fa-triangle-exclamation text-5xl mb-4";
+            prompt.textContent = "Verified";
+            status.className = "text-base font-bold text-amber-600";
+            status.innerHTML = `<i class="fa-solid fa-user-check mr-2"></i> ${student.name} Matrix Complete`;
+            speakMessage(`Hello, ${student.name}. Your Attendance status is complete.`);
+        } else {
+            record.timeOut = logTime;
+            attendance[recordIndex] = record;
+            localStorage.setItem(ak, JSON.stringify(attendance));
+            frame.className = "w-full max-w-[280px] aspect-square bg-slate-950 rounded-2xl flex flex-col justify-center items-center border-[6px] border-blue-500 text-blue-500 shadow-xl shadow-blue-100";
+            icon.className = "fa-solid fa-right-from-bracket text-5xl mb-4";
+            prompt.textContent = "Logged Out";
+            status.className = "text-base font-bold text-blue-600";
+            status.innerHTML = `<i class="fa-solid fa-right-from-bracket mr-2"></i> Time Out: ${student.name}`;
+            speakMessage(`Thank You, ${student.name}. Your time-out is saved.`);
+        }
+    }
+    setTimeout(restoreHardwarePollingLayout, 3800);
+}
+
+function restoreHardwarePollingLayout() {
+    const frame = document.getElementById("nfcStatusFrame");
+    const status = document.getElementById("scanStatus");
+    const prompt = document.getElementById("hardwarePrompt");
+    const icon = document.getElementById("statusIcon");
+
+    frame.className = "w-full max-w-[280px] aspect-square bg-slate-950 rounded-2xl flex flex-col justify-center items-center border-[6px] border-emerald-500 text-emerald-400 pulse-glow";
+    icon.className = "fa-solid fa-circle-nodes text-5xl mb-4 text-emerald-400 animate-pulse";
+    prompt.textContent = "Receiver Listening";
+    status.className = "text-sm text-slate-500 font-medium";
+    status.innerHTML = "Tap card structure against transceiver sensor array to continue tracking...";
+    isProcessingScan = false;
+}
+
+window.onload = () => {
+    if ('speechSynthesis' in window) { window.speechSynthesis.getVoices(); }
+    updateClock();
+};
+</script>
+</body>
+</html>
