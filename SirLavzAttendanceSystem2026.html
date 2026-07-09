@@ -1,8 +1,8 @@
-     <!DOCTYPE html>
+ <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>SirLavz QR Attendance System</title>
+<title>SirLavz QR Attendance System (Scheduled Edition)</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <!-- Tailwind CSS & FontAwesome Icons for modern UI -->
@@ -24,7 +24,7 @@
         min-height: 100vh;
     }
     header {
-        background: linear-gradient(135deg, #071a2f 0%, #0f3b6e 38%, #0f766e 100%);
+        background: linear-gradient(135deg, #064e3b 0%, #047857 38%, #0f766e 100%);
         position: relative;
         overflow: hidden;
         border-bottom-left-radius: 28px;
@@ -67,10 +67,10 @@
         transform: translateY(-1px);
         box-shadow: 0 8px 18px rgba(15, 23, 42, 0.08);
     }
-    .nav-btn.text-blue-600 {
-        background: linear-gradient(135deg, #2563eb 0%, #60a5fa 100%) !important;
+    .nav-btn.text-emerald-600 {
+        background: linear-gradient(135deg, #059669 0%, #34d399 100%) !important;
         color: white !important;
-        box-shadow: 0 12px 28px rgba(37, 99, 235, 0.24);
+        box-shadow: 0 12px 28px rgba(5, 150, 105, 0.24);
     }
     input, select, textarea {
         border-radius: 16px !important;
@@ -105,55 +105,56 @@
 <body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col antialiased">
 
 <!-- Header Section -->
-<header class="bg-gradient-to-r from-green-800 to-green-700 text-white shadow-xl px-3 py-4">
-    <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
-        <div class="flex items-center gap-4 text-center md:text-left">
+<header class="px-3 py-4 text-white shadow-xl">
+    <div class="flex flex-col items-center gap-4 mx-auto max-w-7xl md:flex-row justify-between text-center md:text-left">
+        <div class="flex flex-col items-center gap-4 sm:flex-row">
             <div class="p-2.5 bg-white/10 rounded-xl backdrop-blur-md w-fit inline-block">
-                <img 
-                    src="https://github.com/SirLavz2025/AttendanceSystem/blob/main/ccs.jpg" 
-                    alt="CCS Logo" 
-                    class="h-16 w-auto object-contain block" 
-                />
+                <div class="flex items-center justify-center w-16 h-16 font-bold text-white bg-emerald-800 rounded-lg text-xl">CCS</div>
             </div>
             <div>
                 <h1 class="text-2xl font-bold tracking-tight">SirLavz QR Attendance System</h1>
-                <p class="text-xs text-slate-300 font-medium uppercase tracking-wider">LAGUNA UNIVERSITY - COLLEGE OF COMPUTING STUDIES</p>
+                <p class="text-xs font-medium tracking-wider text-slate-300 uppercase">LAGUNA UNIVERSITY - COLLEGE OF COMPUTING STUDIES</p>
             </div>
         </div>
         <div class="bg-white/10 border border-white/10 backdrop-blur-md px-5 py-2.5 rounded-xl text-center shadow-inner">
-            <div id="liveClock" class="text-sm font-semibold text-sky-300 tracking-wide"><i class="fa-regular fa-clock mr-2"></i>Loading Time...</div>
+            <div id="liveClock" class="text-sm font-semibold tracking-wide text-sky-300"><i class="fa-regular fa-clock mr-2"></i>Loading Time...</div>
         </div>
     </div>
 </header>
-</header>
 
 <!-- Navigation Menu -->
-<nav class="bg-white border-b border-slate-200 px-4 sticky top-0 z-50 shadow-xs">
-    <div class="max-w-7xl mx-auto flex flex-wrap justify-center md:justify-start gap-1 py-2">
-        <button onclick="showTab('scanTab', this)" class="nav-btn px-5 py-2.5 rounded-lg text-sm font-semibold text-blue-600 bg-blue-50 flex items-center gap-2 transition-all duration-200"><i class="fa-solid fa-qrcode"></i> Scanner</button>
-        <button onclick="showTab('studentTab', this)" class="nav-btn px-5 py-2.5 rounded-lg text-sm font-semibold text-slate-600 hover:bg-slate-100 flex items-center gap-2 transition-all duration-200"><i class="fa-solid fa-user-graduate"></i> Students</button>
-        <button onclick="showTab('dropdownTab', this)" class="nav-btn px-5 py-2.5 rounded-lg text-sm font-semibold text-slate-600 hover:bg-slate-100 flex items-center gap-2 transition-all duration-200"><i class="fa-solid fa-sliders"></i> Dropdowns</button>
-        <button onclick="showTab('attendanceTab', this)" class="nav-btn px-5 py-2.5 rounded-lg text-sm font-semibold text-slate-600 hover:bg-slate-100 flex items-center gap-2 transition-all duration-200"><i class="fa-solid fa-clipboard-user"></i> Attendance</button>
+<nav class="sticky top-0 z-50 px-4 bg-white border-b border-slate-200 shadow-xs">
+    <div class="flex flex-wrap justify-center gap-1 py-2 mx-auto max-w-7xl md:justify-start">
+        <button onclick="showTab('scanTab', this)" class="nav-btn px-5 py-2.5 rounded-lg text-sm font-semibold text-emerald-600 bg-emerald-50 flex items-center gap-2 transition-all duration-200"><i class="fa-solid fa-qrcode"></i> Scanner Window</button>
+        <button onclick="showTab('studentTab', this)" class="nav-btn px-5 py-2.5 rounded-lg text-sm font-semibold text-slate-600 hover:bg-slate-100 flex items-center gap-2 transition-all duration-200"><i class="fa-solid fa-user-graduate"></i> Student Directory</button>
+        <button onclick="showTab('scheduleTab', this)" class="nav-btn px-5 py-2.5 rounded-lg text-sm font-semibold text-slate-600 hover:bg-slate-100 flex items-center gap-2 transition-all duration-200"><i class="fa-solid fa-calendar-days"></i> Instructor Schedule</button>
+        <button onclick="showTab('attendanceTab', this)" class="nav-btn px-5 py-2.5 rounded-lg text-sm font-semibold text-slate-600 hover:bg-slate-100 flex items-center gap-2 transition-all duration-200"><i class="fa-solid fa-clipboard-user"></i> Logs & Metrics</button>
     </div>
 </nav>
 
 <!-- Main Wrapper -->
-<main class="flex-1 max-w-7xl w-full mx-auto p-4 md:p-6 lg:p-8">
+<main class="flex-1 w-full p-4 mx-auto max-w-7xl md:p-6 lg:p-8">
 
     <!-- 1. SCANNER TAB -->
     <div id="scanTab" class="tab active-tab space-y-6">
         <div class="max-w-xl mx-auto bg-white rounded-2xl border border-slate-200 shadow-xl overflow-hidden">
-            <div class="bg-slate-900 px-6 py-4 flex flex-col sm:flex-row justify-between items-center gap-3">
-                <h2 class="text-base font-bold text-white flex items-center gap-2"><i class="fa-solid fa-camera text-sky-400"></i> QR Scanner</h2>
+            <div class="flex flex-col items-center gap-3 px-6 py-4 bg-slate-900 sm:flex-row justify-between">
+                <h2 class="text-base font-bold text-white flex items-center gap-2"><i class="fa-solid fa-camera text-emerald-400"></i> Active QR Tracking</h2>
                 <div class="flex items-center gap-2 w-full sm:w-auto">
-                    <select id="cameraSelection" class="bg-slate-800 text-slate-200 text-xs rounded-lg border border-slate-700 px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-blue-500 flex-1"></select>
-                    <button onclick="restartScanner()" class="bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold px-3 py-1.5 rounded-lg transition-colors flex items-center gap-1 shadow-sm"><i class="fa-solid fa-rotate"></i> Switch</button>
+                    <select id="cameraSelection" class="bg-slate-800 text-slate-200 text-xs rounded-lg border border-slate-700 px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-emerald-500 flex-1"></select>
+                    <button onclick="restartScanner()" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold px-3 py-1.5 rounded-lg transition-colors flex items-center gap-1 shadow-sm"><i class="fa-solid fa-rotate"></i> Swap</button>
                 </div>
             </div>
             
-            <div class="p-6 flex flex-col items-center justify-center bg-linear-to-b from-slate-50 to-slate-100">
+            <div class="p-6 flex flex-col items-center justify-center bg-gradient-to-b from-slate-50 to-slate-100">
+                <!-- Real-time Status Card -->
+                <div id="activeClassBanner" class="w-full p-3 mb-4 text-center text-xs rounded-xl font-bold bg-slate-100 text-slate-700 border border-slate-200 transition-all">
+                    Checking for active classes...
+                </div>
+
                 <div id="scanner" class="w-full max-w-[320px] aspect-square bg-slate-950 rounded-xl overflow-hidden border-[6px] border-slate-300 shadow-inner transition-all duration-300"></div>
-                <div class="mt-6 w-full text-center min-h-[50px] flex items-center justify-center px-4">
+                
+                <div class="mt-6 w-full text-center min-h-[60px] flex items-center justify-center px-4">
                     <p id="scanStatus" class="text-lg font-bold tracking-tight transition-all duration-300"></p>
                 </div>
             </div>
@@ -162,65 +163,52 @@
 
     <!-- 2. STUDENT MANAGEMENT TAB -->
     <div id="studentTab" class="tab space-y-6">
-        <div class="bg-white rounded-xl border border-slate-200 p-5 shadow-xs">
-            <h2 class="text-lg font-bold text-slate-900 mb-4 flex items-center gap-2"><i class="fa-solid fa-user-plus text-blue-600"></i> Student Profiles</h2>
+        <div class="p-5 bg-white border border-slate-200 rounded-xl shadow-xs">
+            <h2 class="text-lg font-bold text-slate-900 mb-4 flex items-center gap-2"><i class="fa-solid fa-user-plus text-emerald-600"></i> Registry Matrix</h2>
             <form id="studentForm" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 items-end">
                 <div>
                     <label class="block text-xs font-semibold text-slate-500 mb-1">Student ID</label>
-                    <input id="sid" placeholder="000-00000" class="w-full text-sm bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 font-mono" required>
+                    <input id="sid" placeholder="000-00000" class="w-full text-sm bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 focus:bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500 font-mono" required>
                 </div>
                 <div>
                     <label class="block text-xs font-semibold text-slate-500 mb-1">Full Name</label>
-                    <input id="sname" placeholder="LAVA, RONALD T." class="w-full text-sm bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+                    <input id="sname" placeholder="SURNAME, FIRSTNAME M." class="w-full text-sm bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 focus:bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500" required>
                 </div>
                 <div>
-                    <label class="block text-xs font-semibold text-slate-500 mb-1">Course</label>
-                    <select id="course" class="w-full text-sm bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"></select>
+                    <label class="block text-xs font-semibold text-slate-500 mb-1">Course Assignment</label>
+                    <select id="course" class="w-full text-sm bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 focus:bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500"></select>
                 </div>
                 <div>
                     <label class="block text-xs font-semibold text-slate-500 mb-1">Year Level</label>
-                    <select id="year" class="w-full text-sm bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"></select>
+                    <select id="year" class="w-full text-sm bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 focus:bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500"></select>
                 </div>
                 <div>
-                    <label class="block text-xs font-semibold text-slate-500 mb-1">Section</label>
-                    <select id="section" class="w-full text-sm bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"></select>
+                    <label class="block text-xs font-semibold text-slate-500 mb-1">Section Assignment</label>
+                    <select id="section" class="w-full text-sm bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 focus:bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500"></select>
                 </div>
                 <div class="sm:col-span-2 lg:col-span-5 flex justify-end gap-2 mt-2">
-                    <button type="button" onclick="resetStudentForm()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 text-sm font-semibold px-4 py-2 rounded-lg transition-colors">Clear Form</button>
-                    <button type="submit" id="submitBtn" class="bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold px-5 py-2 rounded-lg transition-colors shadow-sm flex items-center gap-2"><i class="fa-solid fa-plus"></i> Add Student</button>
+                    <button type="button" onclick="resetStudentForm()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 text-sm font-semibold px-4 py-2 rounded-lg transition-colors">Reset Form</button>
+                    <button type="submit" id="submitBtn" class="bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-semibold px-5 py-2 rounded-lg transition-colors shadow-sm flex items-center gap-2"><i class="fa-solid fa-plus"></i> Save Record</button>
                 </div>
             </form>
 
             <div class="mt-5 rounded-xl border border-dashed border-slate-300 bg-slate-50 p-4">
                 <div class="flex flex-col lg:flex-row gap-4">
                     <div class="flex-1">
-                        <h3 class="text-sm font-bold text-slate-900 mb-2 flex items-center gap-2"><i class="fa-solid fa-file-csv text-emerald-600"></i> Bulk Student Import</h3>
-                        <p class="text-xs text-slate-600 mb-3">Paste CSV, TSV, or JSON data to add multiple students at once. Each row will create a student profile and a QR code automatically.</p>
-                        <textarea id="bulkStudentInput" rows="6" class="w-full text-sm bg-white border border-slate-200 rounded-lg px-3 py-2 focus:bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500" placeholder="Student ID,Full Name,Course,Year Level,Section&#10;NAAP-2026-001,Juan Dela Cruz,BSIT,2nd Year,A-1&#10;NAAP-2026-002,Marian Santos,BSCS,3rd Year,B-2"></textarea>
+                        <h3 class="text-sm font-bold text-slate-900 mb-2 flex items-center gap-2"><i class="fa-solid fa-file-csv text-emerald-600"></i> Bulk Loader Pipeline</h3>
+                        <textarea id="bulkStudentInput" rows="5" class="w-full text-sm bg-white border border-slate-200 rounded-lg px-3 py-2 focus:bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500" placeholder="Student ID,Full Name,Course,Year Level,Section&#10;2026-0001,DELA CRUZ, JUAN,BSIT-BA,2nd Year,2B"></textarea>
                         <div class="flex flex-wrap gap-2 mt-3">
-                            <button type="button" onclick="importBulkStudents()" class="bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-semibold px-4 py-2 rounded-lg transition-colors shadow-sm flex items-center gap-2"><i class="fa-solid fa-cloud-arrow-up"></i> Import Students</button>
-                            <button type="button" onclick="seedBulkExample()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 text-sm font-semibold px-4 py-2 rounded-lg transition-colors">Load Sample</button>
-                            <label class="bg-blue-50 hover:bg-blue-100 text-blue-700 text-sm font-semibold px-4 py-2 rounded-lg transition-colors cursor-pointer flex items-center gap-2">
-                                <i class="fa-solid fa-file-arrow-up"></i> Upload File
-                                <input type="file" id="bulkStudentFile" accept=".csv,.txt,.json" class="hidden" onchange="handleBulkStudentFile(this.files[0])">
-                            </label>
+                            <button type="button" onclick="importBulkStudents()" class="bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-semibold px-4 py-2 rounded-lg transition-colors shadow-sm flex items-center gap-2"><i class="fa-solid fa-cloud-arrow-up"></i> Parse Bulk Data</button>
+                            <button type="button" onclick="seedBulkExample()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 text-sm font-semibold px-4 py-2 rounded-lg transition-colors">Load Template</button>
                         </div>
-                        <p id="bulkStatus" class="mt-3 text-xs text-slate-500">Ready to import students and generate their QR passes.</p>
+                        <p id="bulkStatus" class="mt-3 text-xs text-slate-500">Ready to ingest batch lists.</p>
                     </div>
                     <div class="w-full lg:w-72 space-y-3">
                         <div class="rounded-lg border border-slate-200 bg-white p-3">
-                            <h4 class="text-[11px] font-semibold uppercase tracking-wide text-slate-500">Import Tips</h4>
-                            <ul class="mt-2 text-xs text-slate-600 space-y-1">
-                                <li>• Use headers like Student ID, Full Name, Course, Year Level, Section.</li>
-                                <li>• You can also paste tab-separated values or a JSON array.</li>
-                                <li>• Existing student IDs are updated instead of duplicated.</li>
-                            </ul>
-                        </div>
-                        <div class="rounded-lg border border-slate-200 bg-white p-3">
-                            <h4 class="text-[11px] font-semibold uppercase tracking-wide text-slate-500">Print QR Cards</h4>
-                            <label class="block text-xs font-semibold text-slate-500 mb-1 mt-2">Section</label>
-                            <select id="qrPrintSection" class="w-full text-sm bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"></select>
-                            <button type="button" onclick="printQrPdfPerSection()" class="mt-2 w-full bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold px-4 py-2 rounded-lg transition-colors shadow-sm flex items-center justify-center gap-2"><i class="fa-solid fa-file-pdf"></i> Print QR PDF</button>
+                            <h4 class="text-[11px] font-semibold uppercase tracking-wide text-slate-500">Print Cards via Target Class</h4>
+                            <label class="block text-xs font-semibold text-slate-500 mb-1 mt-2">Section Group</label>
+                            <select id="qrPrintSection" class="w-full text-sm bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 focus:bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500"></select>
+                            <button type="button" onclick="printQrPdfPerSection()" class="mt-2 w-full bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold px-4 py-2 rounded-lg transition-colors shadow-sm flex items-center justify-center gap-2"><i class="fa-solid fa-file-pdf"></i> Export Passcards</button>
                         </div>
                     </div>
                 </div>
@@ -232,13 +220,13 @@
                 <table class="w-full border-collapse text-left text-sm text-slate-600">
                     <thead class="bg-slate-50 text-xs font-bold text-slate-700 uppercase border-b border-slate-200">
                         <tr>
-                            <th class="px-6 py-4 text-center">#</th>
+                            <th class="px-6 py-4 text-center">No</th>
                             <th class="px-6 py-4">Student ID</th>
                             <th class="px-6 py-4">Full Name</th>
                             <th class="px-6 py-4">Course</th>
                             <th class="px-6 py-4">Year</th>
                             <th class="px-6 py-4">Section</th>
-                            <th class="px-6 py-4 text-center">QR Pass</th>
+                            <th class="px-6 py-4 text-center">Secure QR Code</th>
                             <th class="px-6 py-4 text-right">Actions</th>
                         </tr>
                     </thead>
@@ -248,68 +236,54 @@
         </div>
     </div>
 
-    <!-- 3. DROPDOWN CONFIGURATION TAB -->
-    <div id="dropdownTab" class="tab space-y-6">
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <!-- Course Setup -->
-            <div class="bg-white rounded-xl border border-slate-200 p-5 shadow-xs flex flex-col">
-                <h3 class="text-sm font-bold text-slate-900 mb-3 flex items-center gap-2"><i class="fa-solid fa-graduation-cap text-indigo-500"></i> Course Registry</h3>
-                <div class="flex gap-2 mb-4">
-                    <input id="newCourse" placeholder="e.g. BS Aero Eng" class="flex-1 text-sm bg-slate-50 border border-slate-200 rounded-lg px-3 py-1.5 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500">
-                    <button onclick="addOpt('courses','newCourse')" class="bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-bold px-3 py-1.5 rounded-lg transition-colors shadow-xs"><i class="fa-solid fa-plus"></i></button>
-                </div>
-                <ul id="coursesList" class="space-y-1.5 flex-1 max-h-[250px] overflow-y-auto pr-1"></ul>
+    <!-- 3. INSTRUCTOR SCHEDULE TAB -->
+    <div id="scheduleTab" class="tab space-y-6">
+        <div class="bg-white rounded-xl border border-slate-200 p-5 shadow-xs">
+            <h2 class="text-lg font-bold text-slate-900 mb-2 flex items-center gap-2"><i class="fa-solid fa-calendar-week text-emerald-600"></i> Embedded Master Schedule Matrix</h2>
+            <p class="text-xs text-slate-500 mb-4">Official A.Y. 2026-2027 1st Semester load mapping for Instructor Ronald Lava. The tracker checks system time stamps against these coordinates.</p>
+            
+            <div class="overflow-x-auto">
+                <table class="w-full text-sm text-left text-slate-600 border border-slate-200 rounded-lg">
+                    <thead class="bg-slate-50 text-xs text-slate-700 uppercase font-bold border-b border-slate-200">
+                        <tr>
+                            <th class="px-4 py-3">Class No.</th>
+                            <th class="px-4 py-3">Course Title</th>
+                            <th class="px-4 py-3">Section</th>
+                            <th class="px-4 py-3">Day</th>
+                            <th class="px-4 py-3">Time Allocation</th>
+                            <th class="px-4 py-3">Type / Room</th>
+                        </tr>
+                    </thead>
+                    <tbody id="scheduleTableBody" class="divide-y divide-slate-200">
+                        <!-- Filled by JS dynamically -->
+                    </tbody>
+                </table>
             </div>
-            <!-- Year Setup -->
-            <div class="bg-white rounded-xl border border-slate-200 p-5 shadow-xs flex flex-col">
-                <h3 class="text-sm font-bold text-slate-900 mb-3 flex items-center gap-2"><i class="fa-solid fa-layer-group text-emerald-500"></i> Year Management</h3>
-                <div class="flex gap-2 mb-4">
-                    <input id="newYear" placeholder="e.g. 1st Year" class="flex-1 text-sm bg-slate-50 border border-slate-200 rounded-lg px-3 py-1.5 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500">
-                    <button onclick="addOpt('years','newYear')" class="bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-bold px-3 py-1.5 rounded-lg transition-colors shadow-xs"><i class="fa-solid fa-plus"></i></button>
-                </div>
-                <ul id="yearsList" class="space-y-1.5 flex-1 max-h-[250px] overflow-y-auto pr-1"></ul>
-            </div>
-            <!-- Section Setup -->
-            <div class="bg-white rounded-xl border border-slate-200 p-5 shadow-xs flex flex-col">
-                <h3 class="text-sm font-bold text-slate-900 mb-3 flex items-center gap-2"><i class="fa-solid fa-users-rectangle text-amber-500"></i> Sections</h3>
-                <div class="flex gap-2 mb-4">
-                    <input id="newSection" placeholder="e.g. A-1" class="flex-1 text-sm bg-slate-50 border border-slate-200 rounded-lg px-3 py-1.5 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500">
-                    <button onclick="addOpt('sections','newSection')" class="bg-amber-600 hover:bg-amber-700 text-white text-sm font-bold px-3 py-1.5 rounded-lg transition-colors shadow-xs"><i class="fa-solid fa-plus"></i></button>
-                </div>
-                <ul id="sectionsList" class="space-y-1.5 flex-1 max-h-[250px] overflow-y-auto pr-1"></ul>
-            </div>
-        </div>
-
-        <!-- Danger Zone Box -->
-        <div class="bg-red-50 border border-red-200 rounded-xl p-5 shadow-xs mt-8">
-            <h3 class="text-sm font-bold text-red-800 mb-2 flex items-center gap-2"><i class="fa-solid fa-triangle-exclamation"></i> Danger Zone</h3>
-            <p class="text-xs text-red-600 mb-4">Performing this action will wipe all structural parameters, registered configurations, and local history stores irrevocably.</p>
-            <button class="bg-red-600 hover:bg-red-700 text-white text-xs font-bold px-4 py-2.5 rounded-lg transition-colors tracking-wide shadow-xs uppercase cursor-pointer" onclick="clearAllLocalStorage()">Purge System Database</button>
         </div>
     </div>
 
     <!-- 4. ATTENDANCE SHEET TAB -->
     <div id="attendanceTab" class="tab space-y-6">
-        <div class="bg-white rounded-xl border border-slate-200 p-5 shadow-xs">
-            <h2 class="text-lg font-bold text-slate-900 mb-4 flex items-center gap-2"><i class="fa-solid fa-sliders text-blue-600"></i> Filter Metrics</h2>
+        <div class="p-5 bg-white border border-slate-200 rounded-xl shadow-xs">
+            <h2 class="text-lg font-bold text-slate-900 mb-4 flex items-center gap-2"><i class="fa-solid fa-sliders text-emerald-600"></i> Filter Metrics & Reporting Engine</h2>
             <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 items-end">
                 <div>
-                    <label class="block text-xs font-semibold text-slate-500 mb-1">Instructor Name</label>
-                    <input id="instructor" oninput="saveInstructor()" placeholder="Enter Faculty Name" class="w-full text-sm bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <label class="block text-xs font-semibold text-slate-500 mb-1">Instructor Profile Name</label>
+                    <input id="instructor" value="LAVA, RONALD T." disabled class="w-full text-sm bg-slate-100 border border-slate-200 rounded-lg px-3 py-2 font-bold text-slate-700">
                 </div>
                 <div>
-                    <label class="block text-xs font-semibold text-slate-500 mb-1">Target Date Range</label>
-                    <input type="date" id="attDate" onchange="renderAttendance()" class="w-full text-sm bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <label class="block text-xs font-semibold text-slate-500 mb-1">Target Tracking Date</label>
+                    <input type="date" id="attDate" onchange="renderAttendance()" class="w-full text-sm bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 focus:bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500">
                 </div>
                 <div>
-                    <label class="block text-xs font-semibold text-slate-500 mb-1">Section Assignment</label>
-                    <select id="filterSection" onchange="renderAttendance()" class="w-full text-sm bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"></select>
+                    <label class="block text-xs font-semibold text-slate-500 mb-1">Class Section Select</label>
+                    <select id="filterSection" onchange="renderAttendance()" class="w-full text-sm bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 focus:bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500"></select>
                 </div>
             </div>
             <div class="flex flex-wrap gap-2 mt-5 border-t border-slate-100 pt-4 justify-end">
-                <button onclick="printFilteredPDF()" class="bg-slate-800 hover:bg-slate-950 text-white text-xs font-bold px-4 py-2 rounded-lg transition-colors flex items-center gap-1.5 shadow-xs"><i class="fa-solid fa-print"></i> Print Window</button>
-                <button onclick="printPerSectionPDF()" class="bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold px-4 py-2 rounded-lg transition-colors flex items-center gap-1.5 shadow-xs"><i class="fa-solid fa-file-pdf"></i> Export Batch Sections</button>
-                <button onclick="resetDailyAttendance()" class="bg-amber-500 hover:bg-amber-600 text-white text-xs font-bold px-4 py-2 rounded-lg transition-colors flex items-center gap-1.5 shadow-xs"><i class="fa-solid fa-eraser"></i> Clear Day Records</button>
+                <button onclick="printFilteredPDF()" class="bg-slate-800 hover:bg-slate-950 text-white text-xs font-bold px-4 py-2 rounded-lg transition-colors flex items-center gap-1.5 shadow-xs"><i class="fa-solid fa-print"></i> Print Active Window</button>
+                <button onclick="printPerSectionPDF()" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold px-4 py-2 rounded-lg transition-colors flex items-center gap-1.5 shadow-xs"><i class="fa-solid fa-file-pdf"></i> Export Batch Sections</button>
+                <button onclick="resetDailyAttendance()" class="bg-amber-500 hover:bg-amber-600 text-white text-xs font-bold px-4 py-2 rounded-lg transition-colors flex items-center gap-1.5 shadow-xs"><i class="fa-solid fa-eraser"></i> Wipe Day Records</button>
             </div>
         </div>
 
@@ -328,7 +302,8 @@
                             <th class="px-6 py-3.5">Full Name</th>
                             <th class="px-6 py-3.5">Course</th>
                             <th class="px-6 py-3.5">Year</th>
-                            <th class="px-6 py-3.5">Section</th>
+                            <th class="px-6 py-3.5">Assigned Section</th>
+                            <th class="px-6 py-3.5 text-center">Class Block Matched</th>
                             <th class="px-6 py-3.5 text-center">Time In</th>
                             <th class="px-6 py-3.5 text-center">Time Out</th>
                             <th class="px-6 py-3.5 text-center">Status Matrix</th>
@@ -342,7 +317,7 @@
         <!-- Section Metrics Analytics Overview -->
         <div class="bg-white rounded-xl border border-slate-200 shadow-xs overflow-hidden max-w-2xl">
             <div class="bg-slate-50 px-5 py-3.5 border-b border-slate-200">
-                <h3 class="text-sm font-bold text-slate-800 flex items-center gap-2"><i class="fa-solid fa-chart-pie text-indigo-500"></i> Summary Matrix per Section</h3>
+                <h3 class="text-sm font-bold text-slate-800 flex items-center gap-2"><i class="fa-solid fa-chart-pie text-emerald-500"></i> Summary Matrix per Section</h3>
             </div>
             <div class="overflow-x-auto">
                 <table class="w-full border-collapse text-left text-sm text-slate-600">
@@ -370,11 +345,29 @@
 </footer>
 
 <script>
+/* -------- EMBEDDED LU MASTER SCHEDULE MATRIX (AY 2026-2027) -------- */
+const MASTER_SCHEDULE = [
+    { classNo: "629", course: "Data Structures and Algorithms", section: "BSIT-BA-2B", day: "Tuesday", start: "07:30", end: "09:00", type: "OL" },
+    { classNo: "559", course: "Data Structures and Algorithms", section: "BSCS-DS-2B", day: "Wednesday", start: "07:30", end: "09:00", type: "AV 4070" },
+    { classNo: "637", course: "Data Structures and Algorithms", section: "BSIT-BA-2C", day: "Wednesday", start: "11:00", end: "12:30", type: "OL" },
+    { classNo: "645", course: "Data Structures and Algorithms", section: "BSIT-BA-2D", day: "Wednesday", start: "11:30", end: "13:00", type: "OL" },
+    { classNo: "559", course: "Data Structures and Algorithms", section: "BSCS-DS-2B", day: "Thursday", start: "07:30", end: "09:00", type: "OL" },
+    { classNo: "637", course: "Data Structures and Algorithms", section: "BSIT-BA-2C", day: "Thursday", start: "11:00", end: "12:30", type: "CL 20" },
+    { classNo: "621", course: "Data Structures and Algorithms", section: "BSIT-BA-2A", day: "Friday", start: "11:00", end: "12:30", type: "OL" },
+    { classNo: "629", course: "Data Structures and Algorithms", section: "BSIT-BA-2B", day: "Friday", start: "16:00", end: "17:30", type: "AV 4090" },
+    { classNo: "645", course: "Data Structures and Algorithms", section: "BSIT-BA-2D", day: "Saturday", start: "07:30", end: "09:00", type: "CL 30" },
+    { classNo: "621", course: "Data Structures and Algorithms", section: "BSIT-BA-2A", day: "Saturday", start: "11:00", end: "12:30", type: "CL 1a" }
+];
+
+/* -------- FIXED DROPDOWN CORE METRICS SYSTEM -------- */
+const SYSTEM_COURSES = ["BSIT-BA", "BSCS-DS"];
+const SYSTEM_YEARS = ["2nd Year"];
+const SYSTEM_SECTIONS = ["BSIT-BA-2A", "BSIT-BA-2B", "BSIT-BA-2C", "BSIT-BA-2D", "BSCS-DS-2B"];
+
 /* -------- DATA INITIALIZATION -------- */
-const sk="students", ak="attendance", dk="dropdowns", ik="instructor";
+const sk="students_v2", ak="attendance_v2";
 let students = JSON.parse(localStorage.getItem(sk)) || [];
 let attendance = JSON.parse(localStorage.getItem(ak)) || [];
-let dropdowns = JSON.parse(localStorage.getItem(dk)) || {courses:[], years:[], sections:[]};
 let html5QrCode;
 let isProcessingScan = false;
 
@@ -387,10 +380,37 @@ function getTodayDate() {
 
 function updateClock() {
     const now = new Date();
-    const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit' };
+    const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true };
     document.getElementById('liveClock').innerHTML = `<i class="fa-regular fa-clock text-sky-400 mr-2"></i>` + now.toLocaleDateString('en-PH', options);
+    evaluateActiveScheduleBanner(now);
 }
 setInterval(updateClock, 1000);
+
+/* -------- MONITOR ACTIVE CLASS TIME WINDOWS -------- */
+function getActiveScheduledBlock(currentTime) {
+    const dayNames = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+    const currentDay = dayNames[currentTime.getDay()];
+    
+    const hours = String(currentTime.getHours()).padStart(2, '0');
+    const minutes = String(currentTime.getMinutes()).padStart(2, '0');
+    const timeStr = `${hours}:${minutes}`;
+
+    return MASTER_SCHEDULE.find(sched => {
+        return sched.day === currentDay && timeStr >= sched.start && timeStr <= sched.end;
+    }) || null;
+}
+
+function evaluateActiveScheduleBanner(now) {
+    const active = getActiveScheduledBlock(now);
+    const banner = document.getElementById("activeClassBanner");
+    if (active) {
+        banner.className = "w-full p-3 mb-4 text-center text-xs rounded-xl font-bold bg-emerald-500 text-white border border-emerald-600 animate-pulse";
+        banner.innerHTML = `<i class="fa-solid fa-circle-play mr-1.5"></i> ACTIVE TRACKING: Class #${active.classNo} | ${active.section} (${active.type}) until ${active.end}`;
+    } else {
+        banner.className = "w-full p-3 mb-4 text-center text-xs rounded-xl font-bold bg-slate-100 text-slate-500 border border-slate-200";
+        banner.innerHTML = `<i class="fa-solid fa-moon mr-1.5"></i> No active structural class block matched. Outside timeline boundaries.`;
+    }
+}
 
 /* -------- TAB NAVIGATION -------- */
 function showTab(id, btnElement){
@@ -398,56 +418,42 @@ function showTab(id, btnElement){
     document.getElementById(id).classList.add('active-tab');
     
     document.querySelectorAll('.nav-btn').forEach(b => {
-        b.classList.remove('text-blue-600', 'bg-blue-50');
+        b.classList.remove('text-emerald-600', 'bg-emerald-50');
         b.classList.add('text-slate-600', 'hover:bg-slate-100');
     });
     btnElement.classList.remove('text-slate-600', 'hover:bg-slate-100');
-    btnElement.classList.add('text-blue-600', 'bg-blue-50');
+    btnElement.classList.add('text-emerald-600', 'bg-emerald-50');
 }
 
-/* -------- DROPDOWN LOGIC -------- */
-function addOpt(type, id) {
-    let v = document.getElementById(id).value.trim();
-    if (v && !dropdowns[type].includes(v)) {
-        dropdowns[type].push(v);
-        saveDrop();
-        renderDrops();
-    }
-    document.getElementById(id).value = "";
-}
-
-function delOpt(type, v) {
-    dropdowns[type] = dropdowns[type].filter(x => x !== v);
-    saveDrop();
-    renderDrops();
-}
-
-function renderDrops() {
-    const mapList = (arr, type) => arr.map(x => `
-        <li class="flex justify-between items-center bg-slate-50 border border-slate-200 px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-700">
-            <span>${x}</span>
-            <button onclick="delOpt('${type}','${x}')" class="text-slate-400 hover:text-red-500 cursor-pointer transition-colors"><i class="fa-solid fa-trash-can"></i></button>
-        </li>
-    `).join("");
-    coursesList.innerHTML = mapList(dropdowns.courses, 'courses');
-    yearsList.innerHTML = mapList(dropdowns.years, 'years');
-    sectionsList.innerHTML = mapList(dropdowns.sections, 'sections');
-
-    const studentSections = [...new Set(students.map(s => s.section).filter(Boolean))];
-    const availableSections = [...new Set([...(dropdowns.sections || []), ...studentSections])];
+/* -------- RENDER PRECONFIGURED STRUCTURES -------- */
+function initStaticDropdowns() {
     const mapOpt = arr => arr.map(x => `<option value="${x}">${x}</option>`).join("");
-    course.innerHTML = mapOpt(dropdowns.courses);
-    year.innerHTML = mapOpt(dropdowns.years);
-    section.innerHTML = mapOpt(availableSections);
-    filterSection.innerHTML = `<option value="ALL">All Sections Summary</option>` + mapOpt(availableSections);
-    qrPrintSection.innerHTML = `<option value="">Select a section</option><option value="ALL">All Sections</option>` + mapOpt(availableSections);
+    course.innerHTML = mapOpt(SYSTEM_COURSES);
+    year.innerHTML = mapOpt(SYSTEM_YEARS);
+    section.innerHTML = mapOpt(SYSTEM_SECTIONS);
+    filterSection.innerHTML = `<option value="ALL">All Schedule Load Summaries</option>` + mapOpt(SYSTEM_SECTIONS);
+    qrPrintSection.innerHTML = `<option value="">Select Target Group...</option><option value="ALL">All Sections Compiled</option>` + mapOpt(SYSTEM_SECTIONS);
 }
 
-/* -------- STUDENT LOGIC -------- */
+function renderScheduleMatrix() {
+    const tbody = document.getElementById("scheduleTableBody");
+    tbody.innerHTML = MASTER_SCHEDULE.map(s => `
+        <tr class="hover:bg-slate-50 transition-colors font-medium">
+            <td class="px-4 py-3 font-mono font-bold text-slate-900">#${s.classNo}</td>
+            <td class="px-4 py-3 text-slate-800">${s.course}</td>
+            <td class="px-4 py-3"><span class="bg-emerald-50 border border-emerald-100 px-2 py-0.5 rounded text-xs font-bold text-emerald-700">${s.section}</span></td>
+            <td class="px-4 py-3 text-slate-700 font-semibold">${s.day}</td>
+            <td class="px-4 py-3 font-mono text-xs text-indigo-600 font-bold">${s.start} - ${s.end}</td>
+            <td class="px-4 py-3 text-xs text-slate-500 font-bold">${s.type}</td>
+        </tr>
+    `).join("");
+}
+
+/* -------- STUDENT DIR LOGIC -------- */
 studentForm.onsubmit = e => {
     e.preventDefault();
-    let i = students.findIndex(s => s.id === sid.value);
-    let obj = {id: sid.value, name: sname.value, course: course.value, year: year.value, section: section.value};
+    let i = students.findIndex(s => s.id === sid.value.trim());
+    let obj = {id: sid.value.trim(), name: sname.value.trim().toUpperCase(), course: course.value, year: year.value, section: section.value};
     if (i >= 0) students[i] = obj; 
     else students.push(obj);
     save();
@@ -458,7 +464,7 @@ studentForm.onsubmit = e => {
 function resetStudentForm() {
     studentForm.reset();
     sid.readOnly = false;
-    submitBtn.innerHTML = `<i class="fa-solid fa-plus"></i> Add Student`;
+    submitBtn.innerHTML = `<i class="fa-solid fa-plus"></i> Save Record`;
 }
 
 function editStudent(id) {
@@ -476,9 +482,9 @@ function editStudent(id) {
 }
 
 function delStudent(id) {
-    if (confirm("Delete this student completely?")) {
+    if (confirm("Delete this student profile and cascade delete logs?")) {
         students = students.filter(s => s.id !== id);
-        attendance = attendance.filter(a => a.id !== id); // Cascades delete records
+        attendance = attendance.filter(a => a.id !== id);
         save();
         localStorage.setItem(ak, JSON.stringify(attendance));
         renderStudents();
@@ -486,138 +492,40 @@ function delStudent(id) {
     }
 }
 
-function parseDelimitedLine(line, delimiter) {
-    const values = [];
-    let current = "";
-    let inQuotes = false;
-
-    for (let i = 0; i < line.length; i++) {
-        const char = line[i];
-        if (char === '"') {
-            if (inQuotes && line[i + 1] === '"') {
-                current += '"';
-                i++;
-            } else {
-                inQuotes = !inQuotes;
-            }
-        } else if (char === delimiter && !inQuotes) {
-            values.push(current.trim());
-            current = "";
-        } else {
-            current += char;
-        }
-    }
-
-    values.push(current.trim());
-    return values;
-}
-
-function normalizeHeader(value) {
-    return String(value || "").toLowerCase().replace(/[^a-z0-9]+/g, "");
-}
-
-function parseBulkStudentData(inputText) {
-    const trimmed = String(inputText || "").trim();
-    if (!trimmed) return [];
-
-    if (trimmed.startsWith("[") || trimmed.startsWith("{")) {
-        try {
-            const parsed = JSON.parse(trimmed);
-            if (Array.isArray(parsed)) return parsed;
-            if (parsed && Array.isArray(parsed.students)) return parsed.students;
-        } catch (error) {
-            console.warn("Bulk import JSON parse failed", error);
-        }
-    }
-
-    const delimiter = trimmed.includes("\t") ? "\t" : ",";
-    const lines = trimmed.split(/\r?\n/).filter(line => line.trim());
-    if (!lines.length) return [];
-
-    const rows = lines.map(line => parseDelimitedLine(line, delimiter));
-    const headers = rows[0].map(normalizeHeader);
-    const isHeaderRow = headers.some(h => ["studentid", "id", "studentnumber", "studentno", "fullname", "name", "course", "year", "yearlevel", "section"].includes(h));
-    const dataRows = isHeaderRow ? rows.slice(1) : rows;
-
-    return dataRows
-        .map(values => {
-            const normalizedValues = values.map(v => v.trim());
-            const headerMap = {};
-            headers.forEach((header, index) => {
-                headerMap[header] = normalizedValues[index] || "";
-            });
-
-            const record = {
-                id: headerMap.studentid || headerMap.id || headerMap.studentnumber || headerMap.studentno || normalizedValues[0] || "",
-                name: headerMap.fullname || headerMap.name || headerMap.studentname || normalizedValues[1] || "",
-                course: headerMap.course || headerMap.program || normalizedValues[2] || "",
-                year: headerMap.year || headerMap.yearlevel || normalizedValues[3] || "",
-                section: headerMap.section || headerMap.sectionname || normalizedValues[4] || ""
-            };
-
-            return record;
-        })
-        .filter(record => record.id && record.name);
-}
-
 function importBulkStudents() {
     const input = document.getElementById('bulkStudentInput').value;
-    const parsedRecords = parseBulkStudentData(input);
-    const statusBox = document.getElementById('bulkStatus');
-
-    if (!parsedRecords.length) {
-        statusBox.innerHTML = '<span class="text-amber-600">No valid student rows were found. Check the import format and try again.</span>';
-        return;
-    }
-
+    const lines = input.split('\n');
     let added = 0;
-    let updated = 0;
-
-    parsedRecords.forEach(record => {
-        const id = String(record.id).trim();
-        const name = String(record.name).trim();
-        if (!id || !name) return;
-
-        const studentData = {
-            id,
-            name,
-            course: String(record.course || "").trim(),
-            year: String(record.year || "").trim(),
-            section: String(record.section || "").trim()
-        };
-
-        const existingIndex = students.findIndex(student => student.id === id);
-        if (existingIndex >= 0) {
-            students[existingIndex] = studentData;
-            updated++;
-        } else {
-            students.push(studentData);
-            added++;
+    
+    lines.forEach((line, index) => {
+        if (index === 0 && line.toLowerCase().includes('id')) return; // Skip headers
+        const parts = line.split(',');
+        if (parts.length >= 5) {
+            const id = parts[0].trim();
+            const name = parts[1].trim().toUpperCase();
+            const crs = parts[2].trim();
+            const yr = parts[3].trim();
+            const sec = parts[4].trim();
+            
+            if (id && name) {
+                const idx = students.findIndex(s => s.id === id);
+                const obj = { id, name, course: crs, year: yr, section: sec };
+                if (idx >= 0) students[idx] = obj;
+                else students.push(obj);
+                added++;
+            }
         }
     });
-
+    
     save();
     renderStudents();
-    renderAttendance();
-    statusBox.innerHTML = `<span class="text-emerald-600">Imported ${added} new student(s) and updated ${updated} existing profile(s). QR passes were generated.</span>`;
-    document.getElementById('bulkStudentInput').value = "";
+    document.getElementById('bulkStatus').innerHTML = `<span class="text-emerald-600 font-bold">Successfully structured ${added} profiles into Local Cache.</span>`;
 }
 
 function seedBulkExample() {
     document.getElementById('bulkStudentInput').value = `Student ID,Full Name,Course,Year Level,Section
-241-0001,LAVA, RONALD T.,BSIT,2nd Year,2A`;
- 
-    document.getElementById('bulkStatus').innerHTML = '<span class="text-slate-600">Sample bulk data loaded. Review it and click Import Students.</span>';
-}
-
-function handleBulkStudentFile(file) {
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = event => {
-        document.getElementById('bulkStudentInput').value = event.target.result;
-        document.getElementById('bulkStatus').innerHTML = `<span class="text-slate-600">Loaded ${file.name}. Review the data and click Import Students.</span>`;
-    };
-    reader.readAsText(file);
+241-0021,LAVA, RONALD T.,BSIT-BA,2nd Year,BSIT-BA-2B
+241-0022,JUAN, DELA CRUZ M.,BSCS-DS,2nd Year,BSCS-DS-2B`;
 }
 
 function renderStudents() {
@@ -630,11 +538,11 @@ function renderStudents() {
                 <td class="px-6 py-4 font-semibold text-slate-800">${s.name}</td>
                 <td class="px-6 py-4 text-xs font-medium text-slate-600">${s.course}</td>
                 <td class="px-6 py-4 text-xs font-medium text-slate-600">${s.year}</td>
-                <td class="px-6 py-4 text-xs font-bold text-indigo-600"><span class="bg-indigo-50 border border-indigo-100 px-2 py-0.5 rounded-md">${s.section}</span></td>
+                <td class="px-6 py-4 text-xs font-bold text-emerald-600"><span class="bg-emerald-50 border border-emerald-100 px-2 py-0.5 rounded-md">${s.section}</span></td>
                 <td class="px-6 py-4"><div id="qr${s.id}" class="flex justify-center bg-white p-1 rounded border border-slate-200 w-[68px] mx-auto"></div></td>
                 <td class="px-6 py-4 text-right space-x-1 whitespace-nowrap">
-                    <button class="bg-blue-50 border border-blue-200 hover:bg-blue-100 text-blue-600 text-xs font-bold px-2.5 py-1.5 rounded-lg transition-colors cursor-pointer" onclick="editStudent('${s.id}')"><i class="fa-solid fa-pen-to-square"></i> Edit</button>
-                    <button class="bg-red-50 border border-red-200 hover:bg-red-100 text-red-600 text-xs font-bold px-2.5 py-1.5 rounded-lg transition-colors cursor-pointer" onclick="delStudent('${s.id}')"><i class="fa-solid fa-trash-can"></i> Delete</button>
+                    <button class="bg-blue-50 border border-blue-200 hover:bg-blue-100 text-blue-600 text-xs font-bold px-2.5 py-1.5 rounded-lg cursor-pointer" onclick="editStudent('${s.id}')"><i class="fa-solid fa-pen-to-square"></i></button>
+                    <button class="bg-red-50 border border-red-200 hover:bg-red-100 text-red-600 text-xs font-bold px-2.5 py-1.5 rounded-lg transition-colors cursor-pointer" onclick="delStudent('${s.id}')"><i class="fa-solid fa-trash-can"></i></button>
                 </td>
             </tr>`;
     });
@@ -645,189 +553,95 @@ function renderStudents() {
 }
 
 function save(){ localStorage.setItem(sk, JSON.stringify(students)); }
-function saveDrop(){ localStorage.setItem(dk, JSON.stringify(dropdowns)); }
-function saveInstructor(){ localStorage.setItem(ik, instructor.value); }
-function loadInstructor(){ instructor.value = localStorage.getItem(ik) || ""; }
 
-function generateQrDataUrl(text, size = 220) {
-    return new Promise(resolve => {
-        const temp = document.createElement('div');
-        temp.style.display = 'inline-block';
-        temp.style.width = `${size}px`;
-        temp.style.height = `${size}px`;
-        document.body.appendChild(temp);
-        new QRCode(temp, { text, width: size, height: size, correctLevel: QRCode.CorrectLevel.H });
-        setTimeout(() => {
-            const canvas = temp.querySelector('canvas');
-            const img = temp.querySelector('img');
-            const dataUrl = canvas ? canvas.toDataURL('image/png') : (img ? img.src : '');
-            temp.remove();
-            resolve(dataUrl);
-        }, 80);
-    });
-}
-
-async function printQrPdfPerSection() {
-    const selectedSection = qrPrintSection.value;
-    if (!selectedSection) {
-        alert('Please select a section first.');
-        return;
-    }
-
-    const sectionsToPrint = selectedSection === 'ALL'
-        ? dropdowns.sections.filter(Boolean)
-        : [selectedSection];
-
-    if (!sectionsToPrint.length) {
-        alert('No sections are configured yet.');
-        return;
-    }
-
-    const printWindowRef = window.open('', '_blank', 'width=1100,height=1400');
-    if (!printWindowRef) {
-        alert('Please allow pop-ups to print QR cards.');
-        return;
-    }
-
-    const sectionMarkup = [];
-    for (const sectionName of sectionsToPrint) {
-        const sectionStudents = students.filter(s => s.section === sectionName);
-        if (!sectionStudents.length) continue;
-
-        const cards = [];
-        for (const student of sectionStudents) {
-            const qrDataUrl = await generateQrDataUrl(student.id, 180);
-            cards.push(`
-                <div class="qr-card">
-                    <div class="qr-box"><img src="${qrDataUrl}" alt="${student.id}"></div>
-                    <div class="qr-info">
-                        <div class="qr-id">${student.id}</div>
-                        <div class="qr-name">${student.name}</div>
-                        <div class="qr-meta">${student.course} • ${student.year} • ${student.section}</div>
-                    </div>
-                </div>
-            `);
-        }
-
-        sectionMarkup.push(`
-            <div class="section-block">
-                <div class="section-header">Section: ${sectionName}</div>
-                <div class="card-grid">${cards.join('')}</div>
-            </div>
-        `);
-    }
-
-    if (!sectionMarkup.length) {
-        printWindowRef.close();
-        alert('No students were found for the selected section.');
-        return;
-    }
-
-    printWindowRef.document.write(`
-        <html>
-        <head>
-            <title>QR Passes by Section</title>
-            <style>
-                body { font-family: 'Segoe UI', sans-serif; margin: 24px; color: #0f172a; }
-                .section-block { page-break-after: always; margin-bottom: 24px; }
-                .section-block:last-child { page-break-after: auto; }
-                .section-header { font-size: 18px; font-weight: 700; margin-bottom: 14px; border-bottom: 2px solid #e2e8f0; padding-bottom: 6px; }
-                .card-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
-                .qr-card { border: 1px solid #e2e8f0; border-radius: 12px; padding: 14px; display: flex; align-items: center; gap: 14px; background: #fff; }
-                .qr-box { flex-shrink: 0; width: 180px; text-align: center; }
-                .qr-box img { width: 180px; height: 180px; }
-                .qr-info { min-width: 0; }
-                .qr-id { font-weight: 700; font-size: 14px; color: #1d4ed8; }
-                .qr-name { font-weight: 700; font-size: 15px; margin-top: 4px; }
-                .qr-meta { font-size: 12px; color: #64748b; margin-top: 4px; }
-                @media print { body { margin: 10px; } .section-block { page-break-after: always; } }
-            </style>
-        </head>
-        <body>
-            ${sectionMarkup.join('')}
-        </body>
-        </html>
-    `);
-    printWindowRef.document.close();
-    setTimeout(() => printWindowRef.print(), 400);
-}
-
-function clearAllLocalStorage() {
-    if (confirm("CRITICAL WARNING: This completely deletes all student entries, logs, and layout adjustments. Proceed?")) { 
-        localStorage.clear(); 
-        location.reload(); 
-    }
-}
-
-/* -------- TEXT TO SPEECH (FILIPINO VOICE ASSIGNMENT) -------- */
+/* -------- TEXT TO SPEECH SPEECH SYNTHESIS ENGINE -------- */
 function speakMessage(text) {
+    if (!('speechSynthesis' in window)) return;
     window.speechSynthesis.cancel(); 
     const msg = new SpeechSynthesisUtterance(text);
-    
-    // Explicit targeting of localized accents
     const voices = window.speechSynthesis.getVoices();
-    // Searches for an exact localized Filipino language identifier, falls back to structural variants
     const phVoice = voices.find(v => v.lang === 'en-PH' || v.lang.includes('tl-PH') || v.name.includes('Philippines'));
-    
-    if (phVoice) {
-        msg.voice = phVoice;
-    }
-    msg.rate = .92; // Slightly slower cadence optimal for clear Taglish syllable stress profiles
-    msg.pitch = 1.1;
+    if (phVoice) msg.voice = phVoice;
+    msg.rate = .95; 
+    msg.pitch = 1.05;
     window.speechSynthesis.speak(msg);
 }
 
-/* -------- ATTENDANCE CORE TRACKER (TIME IN/OUT MATRIX) -------- */
+/* -------- AUTOMATED TIME MONITORING PIPELINE ENGINE -------- */
 function markAttendance(id) {
     if (isProcessingScan) return;
     const scannerBox = document.getElementById("scanner");
     const status = document.getElementById("scanStatus");
+    
     const student = students.find(s => s.id === id);
     isProcessingScan = true;
 
+    // 1. Validation: Unregistered Student
     if (!student) {
         scannerBox.className = "w-full max-w-[320px] aspect-square bg-slate-950 rounded-xl overflow-hidden border-[6px] border-red-500 shadow-lg shadow-red-100";
-        status.className = "text-lg font-bold text-red-600 tracking-tight";
-        status.innerHTML = `<i class="fa-solid fa-circle-xmark mr-2"></i> Unknown ID: ${id}`;
-        speakMessage("You are not in the list. Please check your tracking ID.");
+        status.className = "text-md font-bold text-red-600 tracking-tight";
+        status.innerHTML = `<i class="fa-solid fa-circle-xmark mr-2"></i> Unregistered Identity Core: ${id}`;
+        speakMessage("Access Denied. Identity core not found in database records.");
         setTimeout(() => { resetScannerFrame(); }, 3500);
         return;
     }
 
-    let d = getTodayDate();
-    let logTime = new Date().toLocaleTimeString('en-PH', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true });
+    const now = new Date();
+    const activeSched = getActiveScheduledBlock(now);
     
-    // Fetch pre-existing registration tracking profiles
-    let recordIndex = attendance.findIndex(a => a.id === id && a.date === d);
+    // 2. CRITICAL VALIDATION: Is there any active class running right now?
+    if (!activeSched) {
+        scannerBox.className = "w-full max-w-[320px] aspect-square bg-slate-950 rounded-xl overflow-hidden border-[6px] border-red-500 shadow-lg shadow-red-100";
+        status.className = "text-md font-bold text-red-600 tracking-tight";
+        status.innerHTML = `<i class="fa-solid fa-clock-overflow mr-2"></i> Access Denied!<br><span class="text-xs text-slate-500">There are no scheduled classes active right now.</span>`;
+        speakMessage(`Access denied. ${student.name}, there is no active scheduled class at this time.`);
+        setTimeout(() => { resetScannerFrame(); }, 4000);
+        return;
+    } 
+    
+    // 3. CRITICAL VALIDATION: Is this student part of the currently active scheduled class?
+    if (activeSched.section !== student.section) {
+        scannerBox.className = "w-full max-w-[320px] aspect-square bg-slate-950 rounded-xl overflow-hidden border-[6px] border-amber-500 shadow-lg shadow-amber-100";
+        status.className = "text-md font-bold text-amber-600 tracking-tight";
+        status.innerHTML = `<i class="fa-solid fa-triangle-exclamation mr-2"></i> Class Section Conflict!<br><span class="text-xs text-slate-500">${student.name} belongs to ${student.section}, not Class #${activeSched.classNo}.</span>`;
+        speakMessage(`Section mismatch. You are enrolled in ${student.section}. Current active class is for ${activeSched.section}.`);
+        setTimeout(() => { resetScannerFrame(); }, 4500);
+        return;
+    }
+
+    // If validations pass, track under the target class window
+    const targetClassLabel = `Class #${activeSched.classNo} (${activeSched.type})`;
+    let d = getTodayDate();
+    let logTime = now.toLocaleTimeString('en-PH', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true });
+    
+    let recordIndex = attendance.findIndex(a => a.id === id && a.date === d && a.classLabel === targetClassLabel);
 
     if (recordIndex === -1) {
-        // Initial Entry Event: Perform Time In
-        attendance.push({ id: id, date: d, timeIn: logTime, timeOut: "—" });
+        // Time In Event
+        attendance.push({ id: id, date: d, classLabel: targetClassLabel, timeIn: logTime, timeOut: "—" });
         localStorage.setItem(ak, JSON.stringify(attendance));
         
         scannerBox.className = "w-full max-w-[320px] aspect-square bg-slate-950 rounded-xl overflow-hidden border-[6px] border-emerald-500 shadow-lg shadow-emerald-100";
-        status.className = "text-lg font-bold text-emerald-600 tracking-tight";
-        status.innerHTML = `<i class="fa-solid fa-circle-check mr-2"></i> Time In: ${student.name}`;
-        speakMessage(`Thank you, ${student.name}. Welcome to Laguna University. Your time-in is recorded.`);
+        status.className = "text-md font-bold text-emerald-600 tracking-tight";
+        status.innerHTML = `<i class="fa-solid fa-circle-check mr-2"></i> TIME-IN SUCCESSFUL<br><span class="text-sm text-slate-700">${student.name}</span>`;
+        speakMessage(`Verified. Time in confirmed for ${student.name}.`);
     } else {
-        // Subsequent Event: Evaluate Time Out configuration states
         let record = attendance[recordIndex];
         if (record.timeOut !== "—") {
-            // Both states filled for the timestamp day cycle
-            scannerBox.className = "w-full max-w-[320px] aspect-square bg-slate-950 rounded-xl overflow-hidden border-[6px] border-amber-400 shadow-lg shadow-amber-100";
-            status.className = "text-lg font-bold text-amber-600 tracking-tight";
-            status.innerHTML = `<i class="fa-solid fa-triangle-exclamation mr-2"></i> ${student.name} Already Processed`;
-            speakMessage(`Hello, ${student.name}. Your Attendance is saved for today.`);
+            scannerBox.className = "w-full max-w-[320px] aspect-square bg-slate-950 rounded-xl overflow-hidden border-[6px] border-indigo-400 shadow-lg shadow-indigo-100";
+            status.className = "text-md font-bold text-indigo-600 tracking-tight";
+            status.innerHTML = `<i class="fa-solid fa-user-shield mr-2"></i> Already processed for this class cycle.`;
+            speakMessage(`Records show attendance cycle already closed for ${student.name}.`);
         } else {
-            // Secondary Scan Context: Close out working session state via Time Out assignment
+            // Time Out Event
             record.timeOut = logTime;
             attendance[recordIndex] = record;
             localStorage.setItem(ak, JSON.stringify(attendance));
             
             scannerBox.className = "w-full max-w-[320px] aspect-square bg-slate-950 rounded-xl overflow-hidden border-[6px] border-blue-500 shadow-lg shadow-blue-100";
-            status.className = "text-lg font-bold text-blue-600 tracking-tight";
-            status.innerHTML = `<i class="fa-solid fa-right-from-bracket mr-2"></i> Time Out: ${student.name}`;
-            speakMessage(`Thank You, ${student.name}. Your time-out is saved for today`);
+            status.className = "text-md font-bold text-blue-600 tracking-tight";
+            status.innerHTML = `<i class="fa-solid fa-right-from-bracket mr-2"></i> TIME-OUT GRANTED<br><span class="text-sm text-slate-700">${student.name}</span>`;
+            speakMessage(`Good bye ${student.name}. Your session logs are safely stored.`);
         }
     }
 
@@ -843,6 +657,7 @@ function resetScannerFrame() {
     isProcessingScan = false;
 }
 
+/* -------- RENDER ENGINE LOG REPORTING GENERATOR -------- */
 function renderAttendance() {
     let d = document.getElementById('attDate').value || getTodayDate();
     let sec = filterSection.value;
@@ -851,36 +666,41 @@ function renderAttendance() {
     let count = 1;
 
     students.filter(s => sec === "ALL" || s.section === sec).forEach(s => {
-        let record = attendance.find(a => a.id === s.id && a.date === d);
-        let hasTimedIn = !!record;
-        let hasTimedOut = record && record.timeOut !== "—";
+        let records = attendance.filter(a => a.id === s.id && a.date === d);
         
-        let statusBadge = `<span class="bg-red-50 text-red-700 border border-red-200 text-xs font-bold px-2.5 py-1 rounded-full"><i class="fa-solid fa-circle-dot text-[8px] mr-1.5 align-middle"></i>Absent</span>`;
-        if (hasTimedIn && hasTimedOut) {
-            statusBadge = `<span class="bg-blue-50 text-blue-700 border border-blue-200 text-xs font-bold px-2.5 py-1 rounded-full"><i class="fa-solid fa-circle-check text-[8px] mr-1.5 align-middle"></i>Completed</span>`;
-        } else if (hasTimedIn) {
-            statusBadge = `<span class="bg-emerald-50 text-emerald-700 border border-emerald-200 text-xs font-bold px-2.5 py-1 rounded-full"><i class="fa-solid fa-spinner animate-spin text-[8px] mr-1.5 align-middle"></i>Inside</span>`;
+        if (records.length === 0) {
+            appendAttendanceRow(count++, s, "—", "—", "—", `<span class="bg-red-50 text-red-700 border border-red-200 text-xs font-bold px-2.5 py-1 rounded-full"><i class="fa-solid fa-circle-dot text-[8px] mr-1.5 align-middle"></i>Absent</span>`);
+        } else {
+            records.forEach(rec => {
+                let badge = rec.timeOut !== "—" 
+                    ? `<span class="bg-blue-50 text-blue-700 border border-blue-200 text-xs font-bold px-2.5 py-1 rounded-full"><i class="fa-solid fa-circle-check text-[8px] mr-1.5 align-middle"></i>Completed</span>`
+                    : `<span class="bg-emerald-50 text-emerald-700 border border-emerald-200 text-xs font-bold px-2.5 py-1 rounded-full"><i class="fa-solid fa-spinner animate-spin text-[8px] mr-1.5 align-middle"></i>Inside</span>`;
+                appendAttendanceRow(count++, s, rec.classLabel, rec.timeIn, rec.timeOut, badge);
+            });
         }
-
-        attendanceTable.innerHTML += `
-            <tr class="hover:bg-slate-50 transition-colors">
-                <td class="px-6 py-3.5 font-semibold text-slate-400 text-center">${count++}</td>
-                <td class="px-6 py-3.5 font-mono font-bold text-slate-900">${s.id}</td>
-                <td class="px-6 py-3.5 font-semibold text-slate-800">${s.name}</td>
-                <td class="px-6 py-3.5 text-xs text-slate-600">${s.course}</td>
-                <td class="px-6 py-3.5 text-xs text-slate-600">${s.year}</td>
-                <td class="px-6 py-3.5 text-xs font-bold text-slate-700"><span>${s.section}</span></td>
-                <td class="px-6 py-3.5 text-center font-mono text-xs font-bold ${record && record.timeIn ? 'text-slate-800':'text-slate-300'}">${record ? record.timeIn : '—'}</td>
-                <td class="px-6 py-3.5 text-center font-mono text-xs font-bold ${record && record.timeOut !== '—' ? 'text-indigo-600':'text-slate-300'}">${record ? record.timeOut : '—'}</td>
-                <td class="px-6 py-3.5 text-center">${statusBadge}</td>
-            </tr>`;
     });
     renderSummary(d);
 }
 
+function appendAttendanceRow(num, student, classLbl, timeIn, timeOut, badge) {
+    attendanceTable.innerHTML += `
+        <tr class="hover:bg-slate-50 transition-colors">
+            <td class="px-6 py-3.5 font-semibold text-slate-400 text-center">${num}</td>
+            <td class="px-6 py-3.5 font-mono font-bold text-slate-900">${student.id}</td>
+            <td class="px-6 py-3.5 font-semibold text-slate-800">${student.name}</td>
+            <td class="px-6 py-3.5 text-xs text-slate-600">${student.course}</td>
+            <td class="px-6 py-3.5 text-xs text-slate-600">${student.year}</td>
+            <td class="px-6 py-3.5 text-xs font-bold text-slate-700"><span>${student.section}</span></td>
+            <td class="px-6 py-3.5 text-xs text-center font-bold text-slate-500">${classLbl}</td>
+            <td class="px-6 py-3.5 text-center font-mono text-xs font-bold ${timeIn !== '—' ? 'text-slate-800':'text-slate-300'}">${timeIn}</td>
+            <td class="px-6 py-3.5 text-center font-mono text-xs font-bold ${timeOut !== '—' ? 'text-indigo-600':'text-slate-300'}">${timeOut}</td>
+            <td class="px-6 py-3.5 text-center">${badge}</td>
+        </tr>`;
+}
+
 function renderSummary(d) {
     summaryTable.innerHTML = "";
-    dropdowns.sections.forEach(sec => {
+    SYSTEM_SECTIONS.forEach(sec => {
         let ss = students.filter(s => s.section === sec);
         let pres = ss.filter(s => attendance.some(a => a.id === s.id && a.date === d)).length;
         summaryTable.innerHTML += `
@@ -895,14 +715,14 @@ function renderSummary(d) {
 
 function resetDailyAttendance() {
     let d = attDate.value || getTodayDate();
-    if (confirm(`Clear all logs corresponding to date profile: ${d}?`)) {
+    if (confirm(`Clear all tracked system entries matching timestamp date reference: ${d}?`)) {
         attendance = attendance.filter(a => a.date !== d);
         localStorage.setItem(ak, JSON.stringify(attendance));
         renderAttendance();
     }
 }
 
-/* -------- CAMERA / SCANNER CONTROL -------- */
+/* -------- SCANNER ENGINE INTERFACE LINKER -------- */
 async function initScanner() {
     try {
         const devices = await Html5Qrcode.getCameras();
@@ -910,7 +730,7 @@ async function initScanner() {
             cameraSelection.innerHTML = devices.map(device => `<option value="${device.id}">${device.label}</option>`).join("");
             startScanner(devices[0].id);
         }
-    } catch (err) { console.error("Camera interface deployment error:", err); }
+    } catch (err) { console.error("Camera interface initialization fault:", err); }
 }
 
 function startScanner(cameraId) {
@@ -926,30 +746,64 @@ function attachScanner(cameraId) {
 
 function restartScanner() { startScanner(cameraSelection.value); }
 
-/* -------- HIGH QUALITY PRINT MODULE -------- */
+/* -------- HIGH RESOLUTION SECTIONS PDF EXPORTER ENGINE -------- */
+function generateQrDataUrl(text, size = 180) {
+    return new Promise(resolve => {
+        const temp = document.createElement('div');
+        temp.style.display = 'none';
+        document.body.appendChild(temp);
+        new QRCode(temp, { text, width: size, height: size });
+        setTimeout(() => {
+            const canvas = temp.querySelector('canvas');
+            const dataUrl = canvas ? canvas.toDataURL('image/png') : '';
+            temp.remove();
+            resolve(dataUrl);
+        }, 100);
+    });
+}
+
+async function printQrPdfPerSection() {
+    const sel = qrPrintSection.value;
+    if (!sel) return alert("Select targeted section scope distribution coordinates.");
+    const groups = sel === "ALL" ? SYSTEM_SECTIONS : [sel];
+    const w = window.open('', '_blank');
+    
+    w.document.write(`<html><head><title>Secure Card Passports Export Grid</title><style>
+        body{font-family:sans-serif;background:#fff;padding:20px;} .card{border:2px solid #000;padding:15px;display:inline-block;margin:10px;text-align:center;border-radius:10px;}
+    </style></head><body>`);
+
+    for(let sec of groups){
+        let list = students.filter(s => s.section === sec);
+        for(let s of list){
+            let url = await generateQrDataUrl(s.id);
+            w.document.write(`<div class="card"><img src="${url}"><br><b>${s.name}</b><br>${s.id}<br>${s.section}</div>`);
+        }
+    }
+    w.document.write(`</body></html>`);
+    w.document.close();
+    setTimeout(()=>w.print(),500);
+}
+
 function printFilteredPDF(){
     let d = attDate.value || getTodayDate();
     let s = filterSection.value;
-    let i = instructor.value || "—";
-    printWindow(d, s, i, document.getElementById("printArea").outerHTML);
+    printWindow(d, s, "LAVA, RONALD T.", document.getElementById("printArea").outerHTML);
 }
 
 function printPerSectionPDF(){
     let d = attDate.value || getTodayDate();
-    let i = instructor.value || "—";
-    dropdowns.sections.forEach(sec => {
+    SYSTEM_SECTIONS.forEach(sec => {
         let rows = "";
         students.filter(s => s.section === sec).forEach((s, idx) => {
-            let record = attendance.find(a => a.id === s.id && a.date === d);
-            let timeInVal = record ? record.timeIn : '—';
-            let timeOutVal = record ? record.timeOut : '—';
-            let statusStr = record ? (record.timeOut !== '—' ? 'Completed' : 'Inside') : 'Absent';
-            
+            let records = attendance.filter(a => a.id === s.id && a.date === d);
+            let timeInVal = records.length ? records[0].timeIn : '—';
+            let timeOutVal = records.length ? records[0].timeOut : '—';
+            let statusStr = records.length ? (records[0].timeOut !== '—' ? 'Completed' : 'Inside') : 'Absent';
             rows += `<tr><td>${idx+1}</td><td>${s.id}</td><td>${s.name}</td><td>${s.course}</td><td>${s.year}</td><td>${s.section}</td><td>${timeInVal}</td><td>${timeOutVal}</td><td>${statusStr}</td></tr>`;
         });
         if (rows !== "") {
             let table = `<table><thead><tr><th>#</th><th>ID</th><th>Name</th><th>Course</th><th>Year</th><th>Section</th><th>Time In</th><th>Time Out</th><th>Status</th></tr></thead><tbody>${rows}</tbody></table>`;
-            printWindow(d, sec, i, table);
+            printWindow(d, sec, "LAVA, RONALD T.", table);
         }
     });
 }
@@ -959,49 +813,36 @@ function printWindow(date, section, instructorName, tableBody){
     w.document.write(`
         <html>
         <head>
-            <title>Laguna University College of Computing Studies Attendance Sheet</title>
+            <title>LU CCS Attendance Logs Sheet Output Matrix</title>
             <style>
-                body{font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; padding:40px; color:#1e293b;}
-                .header{text-align:center; border-bottom: 2px dashed #cbd5e1; padding-bottom:20px; margin-bottom:25px;}
-                .header h2 { margin: 0; font-size: 20px; color: #0f172a; letter-spacing: 0.5px; }
-                .header h3 { margin: 5px 0 0 0; font-size: 14px; color: #475569; font-weight: 500; }
-                .header p { margin: 10px 0 0 0; font-size: 12px; color: #64748b; font-family: monospace; }
-                table{width:100%; border-collapse:collapse; margin-top:10px; font-size:12px;}
-                th,td{border:1px solid #e2e8f0; padding:10px 8px; text-align:left;}
-                th{background:#f8fafc; color:#334155; font-weight: bold; text-transform: uppercase; font-size: 10px;}
-                tr:nth-child(even) { background: #f8fafc; }
+                body{font-family: Arial, sans-serif; padding:30px; color:#1e293b;}
+                .header{text-align:center; border-bottom: 2px dashed #cbd5e1; padding-bottom:10px; margin-bottom:20px;}
+                table{width:100%; border-collapse:collapse; font-size:12px;}
+                th,td{border:1px solid #cbd5e1; padding:8px; text-align:left;}
+                th{background:#f1f5f9;}
             </style>
         </head>
         <body>
             <div class="header">
                 <h2>LAGUNA UNIVERSITY</h2>
-                <h2>COLLEGE OF COMPUTING STUDIES</h2>
-                <h3>Attendance Sheet</h3>
-                <p>Date: ${date} | Section Focus: ${section} | Faculty: ${instructorName}</p>
+                <h3>COLLEGE OF COMPUTING STUDIES</h3>
+                <p>Tracking Matrix | Date: ${date} | Scope Target: ${section} | Instructor: ${instructorName}</p>
             </div>
             ${tableBody}
-        <center> 
-        <p> _____________________</p>
-        <h5> ${instructorName}</h5>
+            <br><br><p align="right">___________________________<br>Faculty Signature Verification</p>
         </body>
         </html>`);
     w.document.close();
-    // Native scheduling buffer delay optimization for background engines
     setTimeout(() => { w.print(); }, 500);
 }
 
-/* -------- BOOTSTRAP PIPELINE -------- */
+/* -------- PIPELINE BOOT ENVIRONMENT -------- */
 window.onload = () => {
-    // Engine pre-warming for local synthesis targets
-    if ('speechSynthesis' in window) { window.speechSynthesis.getVoices(); }
-    
-    updateClock();
+    initStaticDropdowns();
+    renderScheduleMatrix();
     document.getElementById('attDate').value = getTodayDate();
-    
     initScanner();
-    renderDrops();
     renderStudents();
-    loadInstructor();
     renderAttendance();
 };
 </script>
